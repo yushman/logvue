@@ -55,3 +55,16 @@ export interface FilterResponse {
     hasMore: boolean
     searchHighlightRanges?: Record<string, [number, number][]>
 }
+
+export interface TimelineBucket {
+    timestamp: number
+    count: number
+    tags: Record<string, number>
+}
+
+export interface TimelineResponse {
+    timeRange: TimeRange
+    resolution: string
+    buckets: TimelineBucket[]
+    tagColors: Record<string, string>
+}

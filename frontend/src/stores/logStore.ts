@@ -1,7 +1,7 @@
 import {defineStore} from 'pinia'
 import {computed, ref} from 'vue'
-import {filterLogs, uploadLogFile} from '../api/client'
-import type {FilterRequest, LogEntry} from '../types/LogEntry'
+import {filterLogs, getTimeline, uploadLogFile} from '../api/client'
+import type {FilterRequest, LogEntry, TimelineBucket} from '../types/LogEntry'
 
 interface TimeRange {
     startTimestamp: number
@@ -36,6 +36,12 @@ export const useLogStore = defineStore('log', () => {
         timeFrom: null as number | null,
         timeTo: null as number | null
     })
+
+    // Timeline state
+    const resolution = ref<'sec' | 'min' | 'hour'>('sec')
+    const buckets = ref<TimelineBucket[]>([])
+    const tagColors = ref<Record<string, string>>({})
+    const selectedRange = ref<{ from: number; to: number } | null>(null)
 
     const hasMore = computed(() => entries.value.length < total.value)
 
@@ -177,6 +183,33 @@ export const useLogStore = defineStore('log', () => {
         total.value = 0
         pinnedEntryId.value = null
         resetFilters()
+        buckets.value = []
+        tagColors.value = {}
+        selectedRange.value = null
+    }
+
+    async function loadTimeline(newResolution: string) {
+        if (!fileId.value) return
+        resolution.value = newResolution as 'sec' | 'min' | 'hour'
+        try {
+            const result = await getTimeline(fileId.value, newResolution)
+            buckets.value = result.buckets
+            tagColors.value = result.tagColors
+        } catch (e) {
+            console.error('[LogStore] loadTimeline error:', e)
+        }
+    }
+
+    function setSelectedRange(range: { from: number; to: number } | null) {
+        selectedRange.value = range
+        if (range) {
+            filters.value.timeFrom = range.from
+            filters.value.timeTo = range.to
+        } else {
+            filters.value.timeFrom = null
+            filters.value.timeTo = null
+        }
+        fetchFilteredLogs()
     }
 
     return {
@@ -190,6 +223,10 @@ export const useLogStore = defineStore('log', () => {
         searchHighlightRanges,
         filters,
         hasMore,
+        resolution,
+        buckets,
+        tagColors,
+        selectedRange,
         uploadLog,
         fetchFilteredLogs,
         loadMore,
@@ -203,7 +240,9 @@ export const useLogStore = defineStore('log', () => {
         setPinnedEntry,
         resetFilters,
         setFileId,
-        clearLog
+        clearLog,
+        loadTimeline,
+        setSelectedRange
     }
 }, {
     persist: {

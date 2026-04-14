@@ -1,6 +1,7 @@
 package com.logvue.plugins
 
 import com.logvue.data.model.FilterRequest
+import com.logvue.data.model.TimelineRequest
 import com.logvue.service.LogService
 import io.ktor.http.*
 import io.ktor.http.content.*
@@ -47,6 +48,14 @@ fun Application.configureRouting(logService: LogService) {
                 post("/filter") {
                     val request = call.receive<FilterRequest>()
                     val result = logService.filterLogs(request)
+                    call.respond(result)
+                }
+
+                get("/timeline") {
+                    val fileId = call.request.queryParameters["fileId"]
+                        ?: return@get call.respond(HttpStatusCode.BadRequest, "fileId required")
+                    val resolution = call.request.queryParameters["resolution"] ?: "sec"
+                    val result = logService.getTimeline(TimelineRequest(fileId, resolution))
                     call.respond(result)
                 }
             }

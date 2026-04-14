@@ -1,4 +1,4 @@
-import type {FilterRequest, FilterResponse} from '../types/LogEntry'
+import type {FilterRequest, FilterResponse, TimelineResponse} from '../types/LogEntry'
 
 interface TimeRange {
     startTimestamp: number
@@ -39,6 +39,16 @@ export async function filterLogs(request: FilterRequest): Promise<FilterResponse
 
     if (!response.ok) {
         throw new Error(`Filter failed: ${response.statusText}`)
+    }
+
+    return response.json()
+}
+
+export async function getTimeline(fileId: string, resolution: string): Promise<TimelineResponse> {
+    const response = await fetch(`/api/logs/timeline?fileId=${encodeURIComponent(fileId)}&resolution=${encodeURIComponent(resolution)}`)
+
+    if (!response.ok) {
+        throw new Error(`Timeline failed: ${response.statusText}`)
     }
 
     return response.json()

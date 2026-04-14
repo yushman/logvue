@@ -1,8 +1,6 @@
 package com.logvue.service
 
-import com.logvue.data.model.FilterRequest
-import com.logvue.data.model.FilterResponse
-import com.logvue.data.model.LogUploadResponse
+import com.logvue.data.model.*
 import com.logvue.data.parser.LogParser
 import com.logvue.data.parser.ParseResult
 import java.util.concurrent.ConcurrentHashMap
@@ -93,5 +91,71 @@ class LogService(private val parser: LogParser) {
         )
     }
 
+    fun getTimeline(request: TimelineRequest): TimelineResponse {
+        val parseResult = logFiles[request.fileId]
+            ?: return TimelineResponse(TimeRange(0, 0), request.resolution, emptyList(), emptyMap())
+
+        val entries = parseResult.entries
+        if (entries.isEmpty()) {
+            return TimelineResponse(parseResult.metadata.timeRange, request.resolution, emptyList(), emptyMap())
+        }
+
+        val timeRange = parseResult.metadata.timeRange
+        val bucketSizeMs = when (request.resolution) {
+            "min" -> 60_000L
+            "hour" -> 3_600_000L
+            else -> 1_000L // "sec" or default
+        }
+
+        // Group entries into buckets
+        val bucketMap = mutableMapOf<Long, MutableList<LogEntry>>()
+        for (entry in entries) {
+            val bucketTs = entry.timestamp - (entry.timestamp % bucketSizeMs)
+            bucketMap.getOrPut(bucketTs) { mutableListOf() }.add(entry)
+        }
+
+        // Build buckets with tag counts
+        val buckets = bucketMap.map { (timestamp, bucketEntries) ->
+            val tagCounts = mutableMapOf<String, Int>()
+            for (entry in bucketEntries) {
+                val tag = entry.header.tag ?: "(no tag)"
+                tagCounts[tag] = tagCounts.getOrDefault(tag, 0) + 1
+            }
+            TimelineBucket(
+                timestamp = timestamp,
+                count = bucketEntries.size,
+                tags = tagCounts
+            )
+        }.sortedBy { it.timestamp }
+
+        // Build tag colors map (deterministic hash to palette)
+        val allTags = buckets.flatMap { it.tags.keys }.toSet()
+        val tagColors = allTags.associateWith { tag -> TAG_PALETTE[hashString(tag) % TAG_PALETTE.size] }
+
+        return TimelineResponse(
+            timeRange = timeRange,
+            resolution = request.resolution,
+            buckets = buckets,
+            tagColors = tagColors
+        )
+    }
+
     private fun generateFileId(): String = java.util.UUID.randomUUID().toString()
+
+    companion object {
+        private val TAG_PALETTE = listOf(
+            "#e41a1c", "#377eb8", "#4daf4a", "#984ea3",
+            "#ff7f00", "#a65628", "#f781bf", "#999999",
+            "#66c2a5", "#fc8d62", "#8da0cb", "#e78ac3",
+            "#a6d854", "#ffd92f", "#e5c494", "#b3b3b3"
+        )
+
+        private fun hashString(str: String): Int {
+            var hash = 0
+            for (c in str) {
+                hash = (hash * 31 + c.code) and 0x7FFFFFFF
+            }
+            return hash
+        }
+    }
 }

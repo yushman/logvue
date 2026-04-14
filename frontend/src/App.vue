@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import FileDropzone from './components/FileDropzone.vue'
 import LogLevelFilter from './components/LogLevelFilter.vue'
 import FilterBar from './components/FilterBar.vue'
 import LogList from './components/LogList.vue'
+import ResolutionSelector from './components/ResolutionSelector.vue'
+import Timeline from './components/Timeline.vue'
 import { useLogStore } from './stores/logStore'
 
 const logStore = useLogStore()
@@ -12,12 +14,22 @@ const showDropzone = computed(() => !logStore.metadata)
 
 async function handleFileSelected(file: File) {
   await logStore.uploadLog(file)
+  await logStore.loadTimeline(logStore.resolution)
+}
+
+function handleRangeSelect(range: { from: number; to: number } | null) {
+  logStore.setSelectedRange(range)
+}
+
+function handleResolutionChange(res: 'sec' | 'min' | 'hour') {
+  logStore.loadTimeline(res)
 }
 
 onMounted(() => {
   // If we have persisted state (metadata exists but no entries), fetch logs
   if (logStore.metadata && logStore.fileId && logStore.entries.length === 0) {
     logStore.fetchFilteredLogs()
+    logStore.loadTimeline(logStore.resolution)
   }
 })
 </script>
@@ -43,6 +55,21 @@ onMounted(() => {
         </div>
         <LogLevelFilter />
         <FilterBar />
+        <div class="timeline-container">
+            <ResolutionSelector
+                v-model="logStore.resolution"
+                @update:modelValue="handleResolutionChange"
+            />
+            <Timeline
+                v-if="logStore.metadata?.timeRange"
+                :buckets="logStore.buckets"
+                :tagColors="logStore.tagColors"
+                :timeRange="logStore.metadata.timeRange"
+                :selectedRange="logStore.selectedRange"
+                :resolution="logStore.resolution"
+                @range-select="handleRangeSelect"
+            />
+        </div>
         <LogList />
       </div>
     </main>
@@ -115,5 +142,17 @@ onMounted(() => {
 
 .clear-btn:hover {
   background: #3a7bc8;
+}
+
+.timeline-container {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid #ddd;
+  background: #fff;
+}
+
+.timeline-container > :first-child {
+  padding: 0.3rem 1rem;
+  border-bottom: 1px solid #eee;
 }
 </style>

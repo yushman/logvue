@@ -4,8 +4,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-LogVue is a log viewer application with a Kotlin/Ktor backend and Vue.js frontend. It parses and visualizes Android
-logcat JSON exports with filtering, search, timeline, and virtual scrolling.
+LogVue is a log viewer application for Android logcat JSON exports. It consists of a Kotlin/Ktor backend that parses and
+filters logs, and a Vue.js frontend with virtual scrolling, filtering, and timeline visualization.
 
 ## Build Commands
 
@@ -25,7 +25,6 @@ cd frontend
 npm install                   # Install dependencies
 npm run dev                   # Start dev server
 npm run build                 # Production build
-npm run test                  # Run tests
 ```
 
 ## Architecture
@@ -34,89 +33,79 @@ npm run test                  # Run tests
 
 ```
 backend/src/main/kotlin/com/logvue/
-  Main.kt                     # Ktor Application entry point
+  Main.kt                     # Ktor Application entry point (CIO engine, port 8080)
   plugins/
     Routing.kt                 # API route configuration
     Serialization.kt           # JSON serialization setup
-  module/
-    AppModule.kt               # Koin dependency injection modules
   data/
     model/
-      LogEntry.kt              # Log entry data classes
-      LogFile.kt               # Log file metadata
-      Exceptions.kt            # Custom exceptions
+      LogEntry.kt              # LogEntry, LogHeader, FilterRequest, FilterResponse
+      LogFile.kt               # LogFileMetadata, TimeRange, LogUploadResponse
     parser/
       LogParser.kt             # Parser interface
-      AndroidLogcatParser.kt   # Android logcat JSON implementation
+      AndroidLogcatParser.kt   # Android logcat JSON (new + legacy format support)
   service/
-    LogService.kt              # Business logic (parsing, filtering)
+    LogService.kt              # Business logic: upload, filter, highlight ranges
 ```
+
+Note: Currently uses direct instantiation (no Koin/dependency injection framework).
 
 ### Frontend Structure
 
 ```
 frontend/src/
   main.ts                      # Vue app entry point
-  App.vue                      # Root component
+  App.vue                      # Root component (FileDropzone → LogView)
   stores/
-    logStore.ts                # Pinia store with filter/pagination state
+    logStore.ts                # Pinia store (filter state, persisted fileId to localStorage)
   components/
     FileDropzone.vue           # File upload drag & drop
-    LogList.vue               # Virtual scrolling log list
+    LogList.vue                # Virtual scrolling log list (vue-virtual-scroller)
     LogLevelFilter.vue         # VERBOSE/DEBUG/INFO/WARN/ERROR/ASSERT checkboxes
     FilterBar.vue              # Contains all filter controls
     TextFilter.vue             # Tag filter with regex toggle
     ContentFilter.vue          # Content filter + search with highlights
     TimeRangePicker.vue        # From/to datetime pickers
-    Timeline.vue               # SVG/Canvas timeline with per-tag markers
-    ResolutionSelector.vue     # sec/min/hour selector
-    PinnedRow.vue              # Sticky pinned log entry
-    ErrorDisplay.vue           # Toast error notifications
-    EmptyState.vue             # Empty/loading states
   api/
     client.ts                  # Backend API client
+  types/
+    LogEntry.ts                # TypeScript interfaces mirroring backend models
+  utils/
+    tagColors.ts               # Deterministic tag → color mapping
 ```
 
 ## Key API Endpoints
 
-| Method | Path                 | Purpose                                                             |
-|--------|----------------------|---------------------------------------------------------------------|
-| GET    | `/health`            | Health check                                                        |
-| POST   | `/api/logs/upload`   | Upload JSON log file, returns metadata + entry count                |
-| POST   | `/api/logs/filter`   | Filter logs with levels, tag/content search, time range, pagination |
-| GET    | `/api/logs/timeline` | Get aggregated timeline buckets with tag colors                     |
+| Method | Path               | Purpose                                          |
+|--------|--------------------|--------------------------------------------------|
+| GET    | `/health`          | Health check                                     |
+| POST   | `/api/logs/upload` | Upload JSON log file, returns metadata + fileId  |
+| POST   | `/api/logs/filter` | Filter logs (levels, tag, content, time, search) |
 
 ## Data Models
 
-### ParsedLogFile
+### Backend (Kotlin)
 
-- `metadata`: LogFileMetadata (deviceName, avdPath, release, apiLevel, applicationIds, filter, logCount, timeRange)
-- `entries`: List of LogEntry
+- `LogEntry`: id, header (LogHeader), message, timestamp (epoch millis)
+- `LogHeader`: logLevel, pid, tid, applicationId, processName, tag, timestamp (seconds + nanos)
+- `FilterRequest`: fileId, levels[], tagPattern, tagRegex, contentFilter, searchQuery, timeFrom, timeTo, offset, limit
+- `FilterResponse`: entries[], total, hasMore, searchHighlightRanges (computed lazily for current page)
 
-### LogEntry
+### Frontend (TypeScript)
 
-- `id`: Int
-- `header`: LogHeader (logLevel, pid, tid, applicationId, processName, tag, timestamp)
-- `message`: String
-- `timestamp`: Long (epoch millis, derived from header.timestamp.seconds + nanos)
-
-### FilterRequest
-
-- `fileId`, `levels[]`, `tagPattern`, `tagRegex`, `contentFilter`, `searchQuery`, `timeFrom`, `timeTo`, `offset`,
-  `limit`
-- Response includes `entries[]`, `total`, `hasMore`, `searchHighlightRanges`
+Mirrors backend models in `frontend/src/types/LogEntry.ts`. Pinia store persists `fileId` to localStorage.
 
 ## Tech Stack
 
-- **Backend**: Kotlin 1.9.x, Ktor 2.3.x (CIO engine), Koin 3.5.x, kotlinx-serialization 1.6.x
-- **Frontend**: Vue 3 (Composition API), TypeScript, Vite, Pinia (persisted to localStorage)
-- **Storage**: In-memory for parsed entries (no database initially)
+- **Backend**: Kotlin 1.9.x, Ktor 2.3.x (CIO engine), kotlinx-serialization 1.6.x
+- **Frontend**: Vue 3 (Composition API), TypeScript, Vite, Pinia with persistedstate plugin
+- **Storage**: In-memory ConcurrentHashMap (no database)
 
 ## Important Implementation Notes
 
-- Timeline uses SVG/Canvas for performance - aggregate buckets if more buckets than pixels
-- Virtual scrolling in LogList renders only visible rows + buffer for 100k+ entries
-- Tag colors are deterministic (hash tag name → palette) and shared between timeline and log list
-- All filtering is server-side (in-memory) for performance
-- Highlight ranges are computed lazily only for current page when searchQuery is non-empty
-- Max file size: 500MB with user-friendly error handling
+- Parser supports two Android logcat JSON formats: new format (`{metadata, logcatMessages}`) and legacy (
+  `{log: {event[], device}}`)
+- All filtering is server-side (in-memory) for performance with large files
+- Highlight ranges are computed lazily on the backend only for the current page when searchQuery is non-empty
+- Virtual scrolling in LogList handles 100k+ entries efficiently
+- Tag colors are deterministic (hash tag name → palette)
