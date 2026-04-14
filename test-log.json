@@ -1,0 +1,46 @@
+{
+  "log": {
+    "device": {
+      "name": "TestDevice",
+      "avdPath": "/home/user/.android/avd/test.avd",
+      "release": "13",
+      "apiLevel": 33
+    },
+    "applicationId": [
+      "com.example.test"
+    ],
+    "filter": "*:V",
+    "event": [
+      {
+        "header": {
+          "timestamp": {
+            "seconds": 1712500000,
+            "nanos": 123000000
+          },
+          "logLevel": "I",
+          "pid": 1234,
+          "tid": 5678,
+          "applicationId": "com.example.test",
+          "processName": "test_process",
+          "tag": "MainActivity"
+        },
+        "message": "App started"
+      },
+      {
+        "header": {
+          "timestamp": {
+            "seconds": 1712500001,
+            "nanos": 456000000
+          },
+          "logLevel": "W",
+          "pid": 1234,
+          "tid": 5678,
+          "applicationId": "com.example.test",
+          "processName": "test_process",
+          "tag": "Memory"
+        },
+        "message": "Low memory warning"
+      }
+    ]
+  }
+}
