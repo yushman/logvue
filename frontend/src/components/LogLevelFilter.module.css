@@ -1,0 +1,67 @@
+.container {
+    display: flex;
+    gap: 1rem;
+    padding: 0.5rem 1rem;
+    background: #f5f5f5;
+    border-bottom: 1px solid #ddd;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.badge {
+    font-size: 0.75rem;
+    color: #666;
+    white-space: nowrap;
+    font-weight: 700;
+    margin-left: auto;
+    margin-right: 0.5rem;
+}
+
+.checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: background-color 0.15s;
+}
+
+.checkbox:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.checkbox input {
+    cursor: pointer;
+}
+
+.label {
+    font-family: monospace;
+    text-transform: uppercase;
+}
+
+.verbose .label {
+    color: #999999;
+}
+
+.debug .label {
+    color: #377eb8;
+}
+
+.info .label {
+    color: #4daf4a;
+}
+
+.warn .label {
+    color: #ff7f00;
+}
+
+.error .label {
+    color: #e41a1c;
+}
+
+.assert .label {
+    color: #984ea3;
+}

@@ -9,15 +9,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "pinia": "^2.1.7",
-    "pinia-plugin-persistedstate": "^3.2.1",
-    "vue": "^3.4.15",
-    "vue-virtual-scroller": "^2.0.0-beta.8"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zustand": "^4.5.2",
+    "@tanstack/react-virtual": "^3.5.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^5.0.3",
-    "typescript": "^5.3.3",
-    "vite": "^5.0.12",
-    "vue-tsc": "^1.8.27"
+    "@vitejs/plugin-react": "^4.3.1",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "typescript": "^5.5.3",
+    "vite": "^5.3.1"
   }
 }

@@ -1,0 +1,19 @@
+.container {
+    width: 100%;
+    background: #fff;
+    border-bottom: 1px solid #ddd;
+    user-select: none;
+    cursor: crosshair;
+}
+
+.container svg {
+    display: block;
+}
+
+.labels {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.7rem;
+    color: #666;
+}

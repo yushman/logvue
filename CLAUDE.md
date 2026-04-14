@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 
 LogVue is a log viewer application for Android logcat JSON exports. It consists of a Kotlin/Ktor backend that parses and
-filters logs, and a Vue.js frontend with virtual scrolling, filtering, and timeline visualization.
+filters logs, and a React TypeScript frontend with virtual scrolling, filtering, and timeline visualization.
 
 ## Build Commands
 
@@ -18,7 +18,7 @@ gradle build                  # Build JAR
 gradle test                   # Run tests
 ```
 
-### Frontend (Vue 3/Vite)
+### Frontend (React/Vite)
 
 ```bash
 cd frontend
@@ -41,46 +41,50 @@ backend/src/main/kotlin/com/logvue/
     model/
       LogEntry.kt              # LogEntry, LogHeader, FilterRequest, FilterResponse
       LogFile.kt               # LogFileMetadata, TimeRange, LogUploadResponse
+      Timeline.kt              # Timeline bucket and request models
+      Exceptions.kt            # FileTooLargeException, MalformedJsonException
     parser/
       LogParser.kt             # Parser interface
       AndroidLogcatParser.kt   # Android logcat JSON (new + legacy format support)
   service/
-    LogService.kt              # Business logic: upload, filter, highlight ranges
+    LogService.kt              # Business logic: upload, filter, timeline, metadata
 ```
 
-Note: Currently uses direct instantiation (no Koin/dependency injection framework).
+Note: Currently uses direct instantiation (no dependency injection framework).
 
 ### Frontend Structure
 
 ```
 frontend/src/
-  main.ts                      # Vue app entry point
-  App.vue                      # Root component (FileDropzone → LogView)
+  main.tsx                    # React app entry point
+  App.tsx                     # Root component (FileDropzone → LogView)
   stores/
-    logStore.ts                # Pinia store (filter state, persisted fileId to localStorage)
-  components/
-    FileDropzone.vue           # File upload drag & drop
-    LogList.vue                # Virtual scrolling log list (vue-virtual-scroller)
-    LogLevelFilter.vue         # VERBOSE/DEBUG/INFO/WARN/ERROR/ASSERT checkboxes
-    FilterBar.vue              # Contains all filter controls
-    TextFilter.vue             # Tag filter with regex toggle
-    ContentFilter.vue          # Content filter + search with highlights
-    TimeRangePicker.vue        # From/to datetime pickers
+    useLogStore.ts            # Zustand store (filter state, file metadata, timeline)
   api/
-    client.ts                  # Backend API client
-  types/
-    LogEntry.ts                # TypeScript interfaces mirroring backend models
-  utils/
-    tagColors.ts               # Deterministic tag → color mapping
+    client.ts                 # Backend API client (fetch-based)
+  components/
+    FileDropzone.tsx          # File upload drag & drop
+    LogList.tsx               # Virtual scrolling log list (@tanstack/react-virtual)
+    LogLevelFilter.tsx        # VERBOSE/DEBUG/INFO/WARN/ERROR/ASSERT checkboxes
+    FilterBar.tsx             # Contains all filter controls
+    TextFilter.tsx            # Tag filter with regex toggle
+    ContentFilter.tsx          # Content filter + search with highlights
+    TimeRangePicker.tsx       # From/to datetime pickers
+    Timeline.tsx              # Timeline visualization with bucket selection
+    ResolutionSelector.tsx     # sec/min/hour resolution picker
+    ErrorDisplay.tsx           # Error/warning/info message display
 ```
 
 ## Key API Endpoints
 
-| Method | Path               | Purpose                                          |
-|--------|--------------------|--------------------------------------------------|
-| GET    | `/health`          | Health check                                     |
-| POST   | `/api/logs/upload` | Upload JSON log file, returns metadata + fileId  |
-| POST   | `/api/logs/filter` | Filter logs (levels, tag, content, time, search) |
+| Method | Path                 | Purpose                                          |
+|--------|----------------------|--------------------------------------------------|
+| GET    | `/health`            | Health check                                     |
+| POST   | `/api/logs/upload`   | Upload JSON log file, returns metadata + fileId  |
+| POST   | `/api/logs/filter`   | Filter logs (levels, tag, content, time, search) |
+| GET    | `/api/logs/timeline` | Get timeline buckets (fileId, resolution params) |
+| GET    | `/api/logs/entry`    | Get single log entry (fileId, entryId params)    |
+| GET    | `/api/logs/metadata` | Get tag colors for file (fileId param)           |
 
 ## Data Models
 
@@ -90,15 +94,16 @@ frontend/src/
 - `LogHeader`: logLevel, pid, tid, applicationId, processName, tag, timestamp (seconds + nanos)
 - `FilterRequest`: fileId, levels[], tagPattern, tagRegex, contentFilter, searchQuery, timeFrom, timeTo, offset, limit
 - `FilterResponse`: entries[], total, hasMore, searchHighlightRanges (computed lazily for current page)
+- `TimelineRequest`: fileId, resolution (sec/min/hour)
 
 ### Frontend (TypeScript)
 
-Mirrors backend models in `frontend/src/types/LogEntry.ts`. Pinia store persists `fileId` to localStorage.
+Mirrors backend models in `frontend/src/types/LogEntry.ts`. Zustand store persists `fileId` to localStorage.
 
 ## Tech Stack
 
 - **Backend**: Kotlin 1.9.x, Ktor 2.3.x (CIO engine), kotlinx-serialization 1.6.x
-- **Frontend**: Vue 3 (Composition API), TypeScript, Vite, Pinia with persistedstate plugin
+- **Frontend**: React 18 (TypeScript), Vite, Zustand, @tanstack/react-virtual
 - **Storage**: In-memory ConcurrentHashMap (no database)
 
 ## Important Implementation Notes
@@ -107,5 +112,7 @@ Mirrors backend models in `frontend/src/types/LogEntry.ts`. Pinia store persists
   `{log: {event[], device}}`)
 - All filtering is server-side (in-memory) for performance with large files
 - Highlight ranges are computed lazily on the backend only for the current page when searchQuery is non-empty
-- Virtual scrolling in LogList handles 100k+ entries efficiently
+- Virtual scrolling in LogList handles 100k+ entries efficiently via @tanstack/react-virtual
 - Tag colors are deterministic (hash tag name → palette)
+- Frontend uses Zustand (not Pinia) for state management
+- File uploads are multipart form-data, not JSON body
