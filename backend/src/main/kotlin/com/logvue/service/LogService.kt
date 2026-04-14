@@ -10,6 +10,9 @@ class LogService(private val parser: LogParser) {
     private val logFiles = ConcurrentHashMap<String, ParseResult>()
 
     suspend fun uploadLogFile(bytes: ByteArray, fileName: String): LogUploadResponse {
+        if (bytes.size > MAX_FILE_SIZE) {
+            throw FileTooLargeException(bytes.size.toLong(), MAX_FILE_SIZE)
+        }
         val result = parser.parse(bytes, fileName)
 
         val fileId = generateFileId()
@@ -142,7 +145,20 @@ class LogService(private val parser: LogParser) {
 
     private fun generateFileId(): String = java.util.UUID.randomUUID().toString()
 
+    fun getEntry(fileId: String, entryId: Int): LogEntry? {
+        val parseResult = logFiles[fileId] ?: return null
+        return parseResult.entries.find { it.id == entryId }
+    }
+
+    fun getMetadata(fileId: String): Map<String, String>? {
+        val parseResult = logFiles[fileId] ?: return null
+        val allTags = parseResult.entries.mapNotNull { it.header.tag }.toSet()
+        return allTags.associateWith { tag -> TAG_PALETTE[hashString(tag) % TAG_PALETTE.size] }
+    }
+
     companion object {
+        const val MAX_FILE_SIZE = 500 * 1024 * 1024L // 500MB
+
         private val TAG_PALETTE = listOf(
             "#e41a1c", "#377eb8", "#4daf4a", "#984ea3",
             "#ff7f00", "#a65628", "#f781bf", "#999999",

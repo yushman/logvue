@@ -1,16 +1,26 @@
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import FileDropzone from './components/FileDropzone.vue'
 import LogLevelFilter from './components/LogLevelFilter.vue'
 import FilterBar from './components/FilterBar.vue'
 import LogList from './components/LogList.vue'
 import ResolutionSelector from './components/ResolutionSelector.vue'
 import Timeline from './components/Timeline.vue'
+import ErrorDisplay from './components/ErrorDisplay.vue'
 import { useLogStore } from './stores/logStore'
 
 const logStore = useLogStore()
 
 const showDropzone = computed(() => !logStore.metadata)
+const errorMessage = ref<string | null>(null)
+const errorType = ref<'error' | 'warning' | 'info'>('error')
+
+watch(() => logStore.error, (newError) => {
+  if (newError) {
+    errorMessage.value = newError
+    errorType.value = 'error'
+  }
+})
 
 async function handleFileSelected(file: File) {
   await logStore.uploadLog(file)
@@ -25,6 +35,11 @@ function handleResolutionChange(res: 'sec' | 'min' | 'hour') {
   logStore.loadTimeline(res)
 }
 
+function dismissError() {
+  errorMessage.value = null
+  logStore.error = null
+}
+
 onMounted(() => {
   // If we have persisted state (metadata exists but no entries), fetch logs
   if (logStore.metadata && logStore.fileId && logStore.entries.length === 0) {
@@ -36,6 +51,12 @@ onMounted(() => {
 
 <template>
   <div class="app">
+    <ErrorDisplay
+      v-if="errorMessage"
+      :message="errorMessage"
+      :type="errorType"
+      @dismiss="dismissError"
+    />
     <main class="app-main">
       <FileDropzone
         v-if="showDropzone"

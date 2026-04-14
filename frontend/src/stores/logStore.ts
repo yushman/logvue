@@ -1,6 +1,6 @@
 import {defineStore} from 'pinia'
 import {computed, ref} from 'vue'
-import {filterLogs, getTimeline, uploadLogFile} from '../api/client'
+import {filterLogs, getEntry, getTimeline, uploadLogFile} from '../api/client'
 import type {FilterRequest, LogEntry, TimelineBucket} from '../types/LogEntry'
 
 interface TimeRange {
@@ -23,7 +23,7 @@ export const useLogStore = defineStore('log', () => {
     const total = ref(0)
     const isLoading = ref(false)
     const error = ref<string | null>(null)
-    const pinnedEntryId = ref<number | null>(null)
+    const pinnedEntryIds = ref<number[]>([])
     const searchHighlightRanges = ref<Record<string, [number, number][]>>({})
     const searchMatchCount = ref(0)
 
@@ -158,8 +158,32 @@ export const useLogStore = defineStore('log', () => {
         fetchFilteredLogs()
     }
 
-    function setPinnedEntry(entryId: number | null) {
-        pinnedEntryId.value = entryId
+    function togglePin(entryId: number) {
+        const idx = pinnedEntryIds.value.indexOf(entryId)
+        if (idx === -1) {
+            pinnedEntryIds.value = [...pinnedEntryIds.value, entryId]
+        } else {
+            pinnedEntryIds.value = pinnedEntryIds.value.filter(id => id !== entryId)
+        }
+    }
+
+    function unpinAll() {
+        pinnedEntryIds.value = []
+    }
+
+    async function fetchPinnedEntry(entryId: number): Promise<LogEntry | null> {
+        if (!fileId.value) return null
+        // Check if already in entries
+        const existing = entries.value.find(e => e.id === entryId)
+        if (existing) return existing
+        // Fetch from API
+        try {
+            const entry = await getEntry(fileId.value, entryId)
+            return entry
+        } catch (e) {
+            console.error('[LogStore] fetchPinnedEntry error:', e)
+            return null
+        }
     }
 
     function resetFilters() {
@@ -181,7 +205,7 @@ export const useLogStore = defineStore('log', () => {
         fileId.value = null
         entries.value = []
         total.value = 0
-        pinnedEntryId.value = null
+        pinnedEntryIds.value = []
         resetFilters()
         buckets.value = []
         tagColors.value = {}
@@ -219,7 +243,7 @@ export const useLogStore = defineStore('log', () => {
         total,
         isLoading,
         error,
-        pinnedEntryId,
+        pinnedEntryIds,
         searchHighlightRanges,
         filters,
         hasMore,
@@ -237,7 +261,9 @@ export const useLogStore = defineStore('log', () => {
         setTimeFrom,
         setTimeTo,
         clearSearch,
-        setPinnedEntry,
+        togglePin,
+        fetchPinnedEntry,
+        unpinAll,
         resetFilters,
         setFileId,
         clearLog,
@@ -246,6 +272,6 @@ export const useLogStore = defineStore('log', () => {
     }
 }, {
     persist: {
-        paths: ['fileId']
+        paths: ['fileId', 'filters', 'pinnedEntryIds', 'resolution', 'selectedRange']
     }
 })

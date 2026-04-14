@@ -1,4 +1,4 @@
-import type {FilterRequest, FilterResponse, TimelineResponse} from '../types/LogEntry'
+import type {FilterRequest, FilterResponse, LogEntry, TimelineResponse} from '../types/LogEntry'
 
 interface TimeRange {
     startTimestamp: number
@@ -22,7 +22,8 @@ export async function uploadLogFile(file: File): Promise<LogMetadata> {
     })
 
     if (!response.ok) {
-        throw new Error(`Upload failed: ${response.statusText}`)
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || `Upload failed: ${response.statusText}`)
     }
 
     return response.json()
@@ -49,6 +50,28 @@ export async function getTimeline(fileId: string, resolution: string): Promise<T
 
     if (!response.ok) {
         throw new Error(`Timeline failed: ${response.statusText}`)
+    }
+
+    return response.json()
+}
+
+export async function getEntry(fileId: string, entryId: number): Promise<LogEntry> {
+    const response = await fetch(`/api/logs/entry?fileId=${encodeURIComponent(fileId)}&entryId=${entryId}`)
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || `Failed to fetch entry: ${response.statusText}`)
+    }
+
+    return response.json()
+}
+
+export async function getMetadata(fileId: string): Promise<{ tagColors: Record<string, string> }> {
+    const response = await fetch(`/api/logs/metadata?fileId=${encodeURIComponent(fileId)}`)
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || `Failed to fetch metadata: ${response.statusText}`)
     }
 
     return response.json()

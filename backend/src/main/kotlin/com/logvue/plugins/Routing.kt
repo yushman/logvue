@@ -1,6 +1,8 @@
 package com.logvue.plugins
 
+import com.logvue.data.model.FileTooLargeException
 import com.logvue.data.model.FilterRequest
+import com.logvue.data.model.MalformedJsonException
 import com.logvue.data.model.TimelineRequest
 import com.logvue.service.LogService
 import io.ktor.http.*
@@ -9,6 +11,7 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.serialization.SerializationException
 
 fun Application.configureRouting(logService: LogService) {
     routing {
@@ -38,8 +41,19 @@ fun Application.configureRouting(logService: LogService) {
 
                     val bytes = fileBytes
                     if (bytes != null) {
-                        val result = logService.uploadLogFile(bytes, fileName)
-                        call.respond(result)
+                        try {
+                            val result = logService.uploadLogFile(bytes, fileName)
+                            call.respond(result)
+                        } catch (e: FileTooLargeException) {
+                            call.respond(
+                                HttpStatusCode.PayloadTooLarge,
+                                mapOf("error" to e.message!!, "actualSize" to e.actualSize, "maxSize" to e.maxSize)
+                            )
+                        } catch (e: MalformedJsonException) {
+                            call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Malformed JSON: ${e.message}"))
+                        } catch (e: SerializationException) {
+                            call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Malformed JSON: ${e.message}"))
+                        }
                     } else {
                         call.respond(HttpStatusCode.BadRequest, "No file uploaded")
                     }
@@ -57,6 +71,32 @@ fun Application.configureRouting(logService: LogService) {
                     val resolution = call.request.queryParameters["resolution"] ?: "sec"
                     val result = logService.getTimeline(TimelineRequest(fileId, resolution))
                     call.respond(result)
+                }
+
+                get("/entry") {
+                    val fileId = call.request.queryParameters["fileId"]
+                        ?: return@get call.respond(HttpStatusCode.BadRequest, "fileId required")
+                    val entryIdStr = call.request.queryParameters["entryId"]
+                        ?: return@get call.respond(HttpStatusCode.BadRequest, "entryId required")
+                    val entryId = entryIdStr.toIntOrNull()
+                        ?: return@get call.respond(HttpStatusCode.BadRequest, "entryId must be an integer")
+                    val entry = logService.getEntry(fileId, entryId)
+                    if (entry != null) {
+                        call.respond(entry)
+                    } else {
+                        call.respond(HttpStatusCode.NotFound, mapOf("error" to "Entry not found"))
+                    }
+                }
+
+                get("/metadata") {
+                    val fileId = call.request.queryParameters["fileId"]
+                        ?: return@get call.respond(HttpStatusCode.BadRequest, "fileId required")
+                    val tagColors = logService.getMetadata(fileId)
+                    if (tagColors != null) {
+                        call.respond(mapOf("tagColors" to tagColors))
+                    } else {
+                        call.respond(HttpStatusCode.NotFound, mapOf("error" to "File not found"))
+                    }
                 }
             }
         }
