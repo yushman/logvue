@@ -3,17 +3,17 @@ package com.logvue
 import com.logvue.data.parser.AndroidLogcatParser
 import com.logvue.plugins.configureRouting
 import com.logvue.service.LogService
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.cio.*
 import io.ktor.server.engine.*
-import io.ktor.server.plugins.cors.*
+import io.ktor.server.http.content.*
 import io.ktor.server.plugins.callloging.*
 import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
-import kotlinx.serialization.json.Json
-import io.ktor.server.http.content.*
+import io.ktor.server.plugins.cors.*
 import io.ktor.server.routing.*
+import kotlinx.serialization.json.Json
 import java.io.File
 
 fun main(args: Array<String>) {
@@ -29,10 +29,14 @@ fun main(args: Array<String>) {
 fun Application.module(logService: LogService) {
     install(CORS) {
         anyHost()
-        allowHeaders { true }
         allowMethod(HttpMethod.Get)
         allowMethod(HttpMethod.Post)
         allowMethod(HttpMethod.Options)
+        allowHeader(HttpHeaders.ContentType)
+        allowHeader(HttpHeaders.Accept)
+        allowHeader(HttpHeaders.Origin)
+        allowCredentials = true
+        allowNonSimpleContentTypes = true
     }
 
     install(ContentNegotiation) {

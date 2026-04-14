@@ -52,7 +52,7 @@ function handleFileChange(event: Event) {
     <input
       ref="fileInput"
       type="file"
-      accept=".json"
+      accept="text/*"
       class="dropzone-input"
       @change="handleFileChange"
     />
@@ -77,6 +77,10 @@ function handleFileChange(event: Event) {
 .dropzone {
   width: 100%;
   max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: auto;
+  margin-bottom: auto;
   padding: 4rem 2rem;
   border: 2px dashed #ccc;
   border-radius: 8px;

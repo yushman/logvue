@@ -22,6 +22,7 @@ data class TimeRange(
 
 @Serializable
 data class LogUploadResponse(
+    val fileId: String,
     val logCount: Int,
     val deviceName: String,
     val timeRange: TimeRange

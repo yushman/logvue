@@ -26,3 +26,24 @@ data class Timestamp(
     val seconds: Long,
     val nanos: Int
 )
+
+@Serializable
+data class FilterRequest(
+    val fileId: String,
+    val levels: List<String> = emptyList(),
+    val tagPattern: String = "",
+    val tagRegex: Boolean = false,
+    val contentFilter: String = "",
+    val searchQuery: String? = null,
+    val timeFrom: Long? = null,
+    val timeTo: Long? = null,
+    val offset: Int = 0,
+    val limit: Int = 200
+)
+
+@Serializable
+data class FilterResponse(
+    val entries: List<LogEntry>,
+    val total: Int,
+    val hasMore: Boolean
+)

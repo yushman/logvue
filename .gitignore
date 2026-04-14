@@ -1,8 +1,8 @@
 /*.iml
 .idea/
-/Plans/
 .git/
 build/
 /.gradle/
 .claude/
 node_modules/
+/logs/

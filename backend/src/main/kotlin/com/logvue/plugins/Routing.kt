@@ -1,14 +1,13 @@
 package com.logvue.plugins
 
+import com.logvue.data.model.FilterRequest
 import com.logvue.service.LogService
+import io.ktor.http.*
+import io.ktor.http.content.*
 import io.ktor.server.application.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.http.*
-import io.ktor.server.request.*
-import io.ktor.utils.io.*
-import io.ktor.http.content.*
-import kotlinx.coroutines.runBlocking
 
 fun Application.configureRouting(logService: LogService) {
     routing {
@@ -43,6 +42,12 @@ fun Application.configureRouting(logService: LogService) {
                     } else {
                         call.respond(HttpStatusCode.BadRequest, "No file uploaded")
                     }
+                }
+
+                post("/filter") {
+                    val request = call.receive<FilterRequest>()
+                    val result = logService.filterLogs(request)
+                    call.respond(result)
                 }
             }
         }

@@ -17,7 +17,7 @@
             "seconds": 1712500000,
             "nanos": 123000000
           },
-          "logLevel": "I",
+          "logLevel": "INFO",
           "pid": 1234,
           "tid": 5678,
           "applicationId": "com.example.test",
@@ -32,7 +32,7 @@
             "seconds": 1712500001,
             "nanos": 456000000
           },
-          "logLevel": "W",
+          "logLevel": "WARN",
           "pid": 1234,
           "tid": 5678,
           "applicationId": "com.example.test",

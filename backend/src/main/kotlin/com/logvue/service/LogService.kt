@@ -1,5 +1,7 @@
 package com.logvue.service
 
+import com.logvue.data.model.FilterRequest
+import com.logvue.data.model.FilterResponse
 import com.logvue.data.model.LogUploadResponse
 import com.logvue.data.parser.LogParser
 import com.logvue.data.parser.ParseResult
@@ -16,6 +18,7 @@ class LogService(private val parser: LogParser) {
         logFiles[fileId] = result
 
         return LogUploadResponse(
+            fileId = fileId,
             logCount = result.metadata.logCount,
             deviceName = result.metadata.deviceName,
             timeRange = result.metadata.timeRange
@@ -23,6 +26,52 @@ class LogService(private val parser: LogParser) {
     }
 
     fun getLogFile(fileId: String): ParseResult? = logFiles[fileId]
+
+    fun filterLogs(request: FilterRequest): FilterResponse {
+        val parseResult = logFiles[request.fileId] ?: return FilterResponse(emptyList(), 0, false)
+
+        var filtered = parseResult.entries.asSequence()
+
+        // Filter by log level
+        if (request.levels.isNotEmpty()) {
+            filtered = filtered.filter { it.header.logLevel in request.levels }
+        }
+
+        // Filter by tag pattern
+        if (request.tagPattern.isNotEmpty()) {
+            filtered = if (request.tagRegex) {
+                val regex = Regex(request.tagPattern, RegexOption.IGNORE_CASE)
+                filtered.filter { it.header.tag?.let { tag -> regex.containsMatchIn(tag) } == true }
+            } else {
+                filtered.filter { it.header.tag?.contains(request.tagPattern, ignoreCase = true) == true }
+            }
+        }
+
+        // Filter by content
+        if (request.contentFilter.isNotEmpty()) {
+            filtered = filtered.filter { it.message.contains(request.contentFilter, ignoreCase = true) }
+        }
+
+        // Filter by time range
+        request.timeFrom?.let { from ->
+            filtered = filtered.filter { it.timestamp >= from }
+        }
+        request.timeTo?.let { to ->
+            filtered = filtered.filter { it.timestamp <= to }
+        }
+
+        val total = filtered.count()
+        val entries = filtered
+            .drop(request.offset)
+            .take(request.limit)
+            .toList()
+
+        return FilterResponse(
+            entries = entries,
+            total = total,
+            hasMore = request.offset + request.limit < total
+        )
+    }
 
     private fun generateFileId(): String = java.util.UUID.randomUUID().toString()
 }

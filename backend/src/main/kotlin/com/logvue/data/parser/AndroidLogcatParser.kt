@@ -16,18 +16,37 @@ class AndroidLogcatParser : LogParser {
         val text = bytes.toString(Charsets.UTF_8)
         val jsonTree = json.parseToJsonElement(text)
 
-        val logWrapper = jsonTree.jsonObject["log"]?.jsonObject
-            ?: throw IllegalArgumentException("Invalid log format: missing 'log' object")
+        // Try new format first: { metadata: {...}, logcatMessages: [...] }
+        val metadataObj = jsonTree.jsonObject["metadata"]?.jsonObject
+        val logcatMessages = jsonTree.jsonObject["logcatMessages"]?.jsonArray
 
-        val eventsArray = logWrapper["event"]?.jsonArray ?: emptyList()
+        if (metadataObj != null && logcatMessages != null) {
+            parseNewFormat(metadataObj, logcatMessages)
+        } else {
+            // Fallback to old format: { log: { event: [...], device: {...} } }
+            val logWrapper = jsonTree.jsonObject["log"]?.jsonObject
+                ?: throw IllegalArgumentException("Invalid log format: missing 'log' or 'metadata' object")
 
-        val entries = eventsArray.mapIndexed { index, element ->
+            val eventsArray = logWrapper["event"]?.jsonArray ?: emptyList()
+
+            val entries = eventsArray.mapIndexed { index, element ->
+                parseEvent(element.jsonObject, index)
+            }
+
+            val metadata = extractMetadataFromLogWrapper(logWrapper, entries)
+
+            ParseResult(metadata, entries)
+        }
+    }
+
+    private fun parseNewFormat(metadataObj: JsonObject, logcatMessages: JsonArray): ParseResult {
+        val entries = logcatMessages.mapIndexed { index, element ->
             parseEvent(element.jsonObject, index)
         }
 
-        val metadata = extractMetadata(logWrapper, entries)
+        val metadata = extractMetadataFromNewFormat(metadataObj, entries)
 
-        ParseResult(metadata, entries)
+        return ParseResult(metadata, entries)
     }
 
     private fun parseEvent(obj: JsonObject, id: Int): LogEntry {
@@ -54,7 +73,30 @@ class AndroidLogcatParser : LogParser {
         )
     }
 
-    private fun extractMetadata(logWrapper: JsonObject, entries: List<LogEntry>): LogFileMetadata {
+    private fun extractMetadataFromNewFormat(metadataObj: JsonObject, entries: List<LogEntry>): LogFileMetadata {
+        val deviceObj = metadataObj["device"]?.jsonObject
+        val emulatorDevice = deviceObj?.get("emulatorDevice")?.jsonObject
+
+        val startTs = entries.minOfOrNull { it.timestamp } ?: 0L
+        val endTs = entries.maxOfOrNull { it.timestamp } ?: System.currentTimeMillis()
+
+        val applicationIds = metadataObj["projectApplicationIds"]?.jsonArray
+            ?.map { it.jsonPrimitive.content }
+            ?: emptyList()
+
+        return LogFileMetadata(
+            deviceName = emulatorDevice?.get("avdName")?.jsonPrimitive?.content ?: "Unknown Device",
+            avdPath = emulatorDevice?.get("avdPath")?.jsonPrimitive?.contentOrNull,
+            release = emulatorDevice?.get("release")?.jsonPrimitive?.contentOrNull,
+            apiLevel = emulatorDevice?.get("apiLevel")?.jsonObject?.get("majorVersion")?.jsonPrimitive?.intOrNull,
+            applicationIds = applicationIds,
+            filter = metadataObj["filter"]?.jsonPrimitive?.contentOrNull,
+            logCount = entries.size,
+            timeRange = TimeRange(startTimestamp = startTs, endTimestamp = endTs)
+        )
+    }
+
+    private fun extractMetadataFromLogWrapper(logWrapper: JsonObject, entries: List<LogEntry>): LogFileMetadata {
         val deviceObj = logWrapper["device"]?.jsonObject
 
         val startTs = entries.minOfOrNull { it.timestamp } ?: 0L
