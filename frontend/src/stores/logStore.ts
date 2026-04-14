@@ -24,6 +24,8 @@ export const useLogStore = defineStore('log', () => {
     const isLoading = ref(false)
     const error = ref<string | null>(null)
     const pinnedEntryId = ref<number | null>(null)
+    const searchHighlightRanges = ref<Record<string, [number, number][]>>({})
+    const searchMatchCount = ref(0)
 
     const filters = ref({
         levels: [...DEFAULT_LEVELS],
@@ -63,7 +65,7 @@ export const useLogStore = defineStore('log', () => {
         }
     }
 
-    async function fetchFilteredLogs() {
+    async function fetchFilteredLogs(append = false) {
         console.log('[LogStore] fetchFilteredLogs called, fileId:', fileId.value, 'filters:', JSON.stringify(filters.value))
         if (!fileId.value) {
             console.log('[LogStore] fetchFilteredLogs early return - no fileId')
@@ -83,7 +85,7 @@ export const useLogStore = defineStore('log', () => {
                 searchQuery: filters.value.searchQuery,
                 timeFrom: filters.value.timeFrom,
                 timeTo: filters.value.timeTo,
-                offset: 0,
+                offset: append ? entries.value.length : 0,
                 limit: 200
             }
             console.log('[LogStore] Sending filter request:', JSON.stringify(request))
@@ -92,13 +94,24 @@ export const useLogStore = defineStore('log', () => {
                 total: result.total,
                 entriesCount: result.entries.length
             }))
-            entries.value = result.entries
+            if (append) {
+                entries.value = [...entries.value, ...result.entries]
+            } else {
+                entries.value = result.entries
+            }
             total.value = result.total
+            searchHighlightRanges.value = result.searchHighlightRanges || {}
         } catch (e) {
             console.error('[LogStore] Filter error:', e)
             error.value = e instanceof Error ? e.message : 'Filter failed'
         } finally {
             isLoading.value = false
+        }
+    }
+
+    function loadMore() {
+        if (!isLoading.value && hasMore.value) {
+            fetchFilteredLogs(true)
         }
     }
 
@@ -116,6 +129,31 @@ export const useLogStore = defineStore('log', () => {
     function setContentFilter(filter: string) {
         filters.value.contentFilter = filter
         fetchFilteredLogs()
+    }
+
+    function setSearchQuery(query: string | null) {
+        filters.value.searchQuery = query
+        fetchFilteredLogs()
+    }
+
+    function setTimeFrom(time: number | null) {
+        filters.value.timeFrom = time
+        fetchFilteredLogs()
+    }
+
+    function setTimeTo(time: number | null) {
+        filters.value.timeTo = time
+        fetchFilteredLogs()
+    }
+
+    function clearSearch() {
+        filters.value.searchQuery = null
+        searchHighlightRanges.value = {}
+        fetchFilteredLogs()
+    }
+
+    function setPinnedEntry(entryId: number | null) {
+        pinnedEntryId.value = entryId
     }
 
     function resetFilters() {
@@ -149,19 +187,26 @@ export const useLogStore = defineStore('log', () => {
         isLoading,
         error,
         pinnedEntryId,
+        searchHighlightRanges,
         filters,
         hasMore,
         uploadLog,
         fetchFilteredLogs,
+        loadMore,
         setLevels,
         setTagPattern,
         setContentFilter,
+        setSearchQuery,
+        setTimeFrom,
+        setTimeTo,
+        clearSearch,
+        setPinnedEntry,
         resetFilters,
         setFileId,
         clearLog
     }
 }, {
     persist: {
-        paths: ['metadata', 'fileId']
+        paths: ['fileId']
     }
 })

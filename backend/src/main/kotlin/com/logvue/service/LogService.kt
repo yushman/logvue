@@ -66,10 +66,30 @@ class LogService(private val parser: LogParser) {
             .take(request.limit)
             .toList()
 
+        // Compute highlight ranges for searchQuery on current page entries
+        val searchHighlightRanges = mutableMapOf<String, List<List<Int>>>()
+        if (!request.searchQuery.isNullOrEmpty()) {
+            entries.forEach { entry ->
+                val ranges = mutableListOf<List<Int>>()
+                var start = 0
+                val message = entry.message
+                while (true) {
+                    val idx = message.indexOf(request.searchQuery, start, ignoreCase = true)
+                    if (idx == -1) break
+                    ranges.add(listOf(idx, idx + request.searchQuery.length))
+                    start = idx + 1
+                }
+                if (ranges.isNotEmpty()) {
+                    searchHighlightRanges[entry.id.toString()] = ranges
+                }
+            }
+        }
+
         return FilterResponse(
             entries = entries,
             total = total,
-            hasMore = request.offset + request.limit < total
+            hasMore = request.offset + request.limit < total,
+            searchHighlightRanges = searchHighlightRanges
         )
     }
 

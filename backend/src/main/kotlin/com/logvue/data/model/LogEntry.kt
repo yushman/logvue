@@ -45,5 +45,6 @@ data class FilterRequest(
 data class FilterResponse(
     val entries: List<LogEntry>,
     val total: Int,
-    val hasMore: Boolean
+    val hasMore: Boolean,
+    val searchHighlightRanges: Map<String, List<List<Int>>> = emptyMap()
 )

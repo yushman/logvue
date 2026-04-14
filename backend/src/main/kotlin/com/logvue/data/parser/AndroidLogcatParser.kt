@@ -77,8 +77,8 @@ class AndroidLogcatParser : LogParser {
         val deviceObj = metadataObj["device"]?.jsonObject
         val emulatorDevice = deviceObj?.get("emulatorDevice")?.jsonObject
 
-        val startTs = entries.minOfOrNull { it.timestamp } ?: 0L
-        val endTs = entries.maxOfOrNull { it.timestamp } ?: System.currentTimeMillis()
+        val startTs = entries.filter { it.timestamp > 0 }.minOfOrNull { it.timestamp } ?: 0L
+        val endTs = entries.filter { it.timestamp > 0 }.maxOfOrNull { it.timestamp } ?: System.currentTimeMillis()
 
         val applicationIds = metadataObj["projectApplicationIds"]?.jsonArray
             ?.map { it.jsonPrimitive.content }
@@ -99,8 +99,8 @@ class AndroidLogcatParser : LogParser {
     private fun extractMetadataFromLogWrapper(logWrapper: JsonObject, entries: List<LogEntry>): LogFileMetadata {
         val deviceObj = logWrapper["device"]?.jsonObject
 
-        val startTs = entries.minOfOrNull { it.timestamp } ?: 0L
-        val endTs = entries.maxOfOrNull { it.timestamp } ?: System.currentTimeMillis()
+        val startTs = entries.filter { it.timestamp > 0 }.minOfOrNull { it.timestamp } ?: 0L
+        val endTs = entries.filter { it.timestamp > 0 }.maxOfOrNull { it.timestamp } ?: System.currentTimeMillis()
 
         return LogFileMetadata(
             deviceName = deviceObj?.get("name")?.jsonPrimitive?.content ?: "Unknown Device",

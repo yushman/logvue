@@ -34,6 +34,9 @@ function toggleLevel(level: string) {
       />
       <span class="level-label">{{ level }}</span>
     </label>
+    <span class="entry-count-badge">
+      {{ logStore.total }} / {{ logStore.metadata?.logCount }} entries
+    </span>
   </div>
 </template>
 
@@ -41,10 +44,20 @@ function toggleLevel(level: string) {
 .log-level-filter {
   display: flex;
   gap: 1rem;
-  padding: 0.75rem 1rem;
+  padding: 0.5rem 1rem;
   background: #f5f5f5;
   border-bottom: 1px solid #ddd;
   flex-wrap: wrap;
+  align-items: center;
+}
+
+.entry-count-badge {
+  font-size: 0.75rem;
+  color: #666;
+  white-space: nowrap;
+  font-weight: 700;
+  margin-left: auto;
+  margin-right: 0.5rem;
 }
 
 .level-checkbox {

@@ -32,8 +32,8 @@ export interface LogFileMetadata {
 }
 
 export interface TimeRange {
-    from: number
-    to: number
+    startTimestamp: number
+    endTimestamp: number
 }
 
 export interface FilterRequest {
@@ -53,4 +53,5 @@ export interface FilterResponse {
     entries: LogEntry[]
     total: number
     hasMore: boolean
+    searchHighlightRanges?: Record<string, [number, number][]>
 }

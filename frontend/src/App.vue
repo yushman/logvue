@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import FileDropzone from './components/FileDropzone.vue'
 import LogLevelFilter from './components/LogLevelFilter.vue'
+import FilterBar from './components/FilterBar.vue'
 import LogList from './components/LogList.vue'
 import { useLogStore } from './stores/logStore'
 
@@ -23,10 +24,6 @@ onMounted(() => {
 
 <template>
   <div class="app">
-    <header class="app-header">
-      <h1>LogVue</h1>
-    </header>
-
     <main class="app-main">
       <FileDropzone
         v-if="showDropzone"
@@ -36,14 +33,16 @@ onMounted(() => {
       <div v-else class="log-view">
         <div class="log-header">
           <div class="log-meta">
+            <span class="app-name">LogVue</span>
+            <span class="separator">|</span>
             <span class="device-name">{{ logStore.metadata?.deviceName }}</span>
-            <span class="entry-count">{{ logStore.total }} / {{ logStore.metadata?.logCount }} entries</span>
           </div>
           <button class="clear-btn" @click="logStore.clearLog()">
             Load New File
           </button>
         </div>
         <LogLevelFilter />
+        <FilterBar />
         <LogList />
       </div>
     </main>
@@ -57,21 +56,11 @@ onMounted(() => {
   flex-direction: column;
 }
 
-.app-header {
-  background: #1a1a2e;
-  color: white;
-  padding: 1rem 2rem;
-}
-
-.app-header h1 {
-  margin: 0;
-  font-size: 1.5rem;
-}
-
 .app-main {
   flex: 1;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .log-view {
@@ -85,35 +74,42 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem 1rem;
+  padding: 0.5rem 1rem;
   background: #f5f5f5;
   border-bottom: 1px solid #ddd;
 }
 
 .log-meta {
   display: flex;
-  gap: 1.5rem;
+  gap: 0.5rem;
   align-items: center;
 }
 
-.device-name {
-  font-weight: 600;
+.app-name {
+  font-weight: 700;
   color: #333;
+  font-size: 1.1rem;
 }
 
-.entry-count {
-  font-size: 0.875rem;
+.separator {
+  color: #ccc;
+  font-size: 0.9rem;
+}
+
+.device-name {
+  font-weight: 500;
   color: #666;
+  font-size: 0.85rem;
 }
 
 .clear-btn {
-  padding: 0.4rem 0.8rem;
+  padding: 0.3rem 0.7rem;
   background: #4a90d9;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   transition: background-color 0.15s;
 }
 
