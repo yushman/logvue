@@ -32,6 +32,7 @@ interface LogState {
     isLoading: boolean
     error: string | null
     pinnedEntryIds: number[]
+    pinnedEntriesCache: LogEntry[]
     searchHighlightRanges: Record<string, [number, number][]>
     searchMatchCount: number
     filters: FilterState
@@ -86,6 +87,7 @@ export const useLogStore = create<LogStore>()(
             isLoading: false,
             error: null,
             pinnedEntryIds: [],
+            pinnedEntriesCache: [],
             searchHighlightRanges: {},
             searchMatchCount: 0,
             filters: getDefaultFilters(),
@@ -149,10 +151,15 @@ export const useLogStore = create<LogStore>()(
                         total: result.total,
                         entriesCount: result.entries.length
                     }))
+                    const {pinnedEntryIds, pinnedEntriesCache} = get()
+                    const pinnedIdsSet = new Set(pinnedEntryIds)
+                    const existingCacheIds = new Set(pinnedEntriesCache.map(e => e.id))
+                    const newCacheEntries = result.entries.filter(e => pinnedIdsSet.has(e.id) && !existingCacheIds.has(e.id))
                     set({
                         entries: append ? [...get().entries, ...result.entries] : result.entries,
                         total: result.total,
-                        searchHighlightRanges: result.searchHighlightRanges || {}
+                        searchHighlightRanges: result.searchHighlightRanges || {},
+                        pinnedEntriesCache: [...pinnedEntriesCache, ...newCacheEntries]
                     })
                 } catch (e) {
                     console.error('[LogStore] Filter error:', e)
@@ -208,10 +215,18 @@ export const useLogStore = create<LogStore>()(
             },
 
             togglePin: (entryId: number) => {
-                const {pinnedEntryIds} = get()
+                const {pinnedEntryIds, entries, pinnedEntriesCache} = get()
                 const idx = pinnedEntryIds.indexOf(entryId)
                 if (idx === -1) {
-                    set({pinnedEntryIds: [...pinnedEntryIds, entryId]})
+                    const entryToPin = entries.find(e => e.id === entryId)
+                    if (entryToPin) {
+                        set({
+                            pinnedEntryIds: [...pinnedEntryIds, entryId],
+                            pinnedEntriesCache: [...pinnedEntriesCache, entryToPin]
+                        })
+                    } else {
+                        set({pinnedEntryIds: [...pinnedEntryIds, entryId]})
+                    }
                 } else {
                     set({pinnedEntryIds: pinnedEntryIds.filter(id => id !== entryId)})
                 }
@@ -250,6 +265,7 @@ export const useLogStore = create<LogStore>()(
                     entries: [],
                     total: 0,
                     pinnedEntryIds: [],
+                    pinnedEntriesCache: [],
                     filters: getDefaultFilters(),
                     buckets: [],
                     tagColors: {},

@@ -60,13 +60,15 @@ export default function LogList() {
         total,
         isLoading,
         pinnedEntryIds,
+        pinnedEntriesCache,
         searchHighlightRanges,
-        hasMore,
         loadMore,
         togglePin,
         resetFilters,
         fetchFilteredLogs
     } = useLogStore()
+
+    const hasMore = entries.length < total
 
     const parentRef = useRef<HTMLDivElement>(null)
     const [scrollTop, setScrollTop] = useState(0)
@@ -81,6 +83,7 @@ export default function LogList() {
     const [dragging, setDragging] = useState<string | null>(null)
     const [dragStartX, setDragStartX] = useState(0)
     const [dragStartWidth, setDragStartWidth] = useState(0)
+    const loadMoreRef = useRef(false)
 
     const pinnedIdsSet = useMemo(() => new Set(pinnedEntryIds), [pinnedEntryIds])
 
@@ -106,40 +109,10 @@ export default function LogList() {
     const stickyPinnedEntries = useMemo(() => {
         if (pinnedEntryIds.length === 0) return []
 
-        const stickyPins: LogEntry[] = []
-
-        for (const id of pinnedEntryIds) {
-            const entryIndex = entries.findIndex(e => e.id === id)
-            if (entryIndex === -1) continue
-
-            const entry = entries[entryIndex]
-            const entryTop = entryIndex * ROW_HEIGHT
-            const entryBottom = entryTop + ROW_HEIGHT
-
-            if (entryTop < scrollTop) {
-                const entryBottomInViewport = entryBottom <= scrollTop + viewportHeight
-                const prevVisible = entryIndex > 0
-                    ? (entryIndex - 1) * ROW_HEIGHT >= scrollTop
-                    : false
-                const nextVisible = entryIndex < entries.length - 1
-                    ? (entryIndex + 1) * ROW_HEIGHT <= scrollTop + viewportHeight
-                    : false
-
-                if (entryBottomInViewport && !prevVisible && !nextVisible) {
-                    stickyPins.push(entry)
-                }
-            }
-        }
-
-        return stickyPins.sort((a, b) => {
-            return entries.findIndex(e => e.id === a.id) - entries.findIndex(e => e.id === b.id)
-        })
-    }, [pinnedEntryIds, entries, scrollTop, viewportHeight])
-
-    const virtualItems = useMemo(() => {
-        const stickyIds = new Set(stickyPinnedEntries.map(e => e.id))
-        return entries.filter(e => !stickyIds.has(e.id))
-    }, [stickyPinnedEntries, entries])
+        return pinnedEntryIds
+            .map(id => entries.find(e => e.id === id) ?? pinnedEntriesCache.find(e => e.id === id))
+            .filter((e): e is LogEntry => e !== undefined)
+    }, [pinnedEntryIds, entries, pinnedEntriesCache])
 
     const startDrag = useCallback((key: string, e: React.MouseEvent) => {
         e.preventDefault()
@@ -175,9 +148,28 @@ export default function LogList() {
         }
     }, [dragging, dragStartX, dragStartWidth])
 
+    useEffect(() => {
+        if (!isLoading) {
+            loadMoreRef.current = false
+        }
+    }, [isLoading])
+
     const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
         setScrollTop(e.currentTarget.scrollTop)
-    }, [])
+        const {scrollTop, scrollHeight, clientHeight} = e.currentTarget
+        console.log('scroll', {
+            scrollTop,
+            scrollHeight,
+            clientHeight,
+            diff: scrollHeight - scrollTop - clientHeight,
+            hasMore
+        })
+        if (hasMore && !loadMoreRef.current && scrollTop + clientHeight >= scrollHeight - 100) {
+            console.log('triggering loadMore')
+            loadMoreRef.current = true
+            loadMore()
+        }
+    }, [hasMore, loadMore])
 
     const clearFiltersAndRefetch = () => {
         resetFilters()
@@ -209,6 +201,32 @@ export default function LogList() {
 
     return (
         <div className={styles.container}>
+            <div className={styles.headerRow}>
+                <div className={styles.headerCell} style={{width: columnWidths.pin}}>
+                    <span>PIN</span>
+                    <div className={styles.resizer} onMouseDown={e => startDrag('pin', e)}/>
+                </div>
+                <div className={styles.headerCell} style={{width: columnWidths.level}}>
+                    <span>LEVEL</span>
+                    <div className={styles.resizer} onMouseDown={e => startDrag('level', e)}/>
+                </div>
+                <div className={styles.headerCell} style={{width: columnWidths.date}}>
+                    <span>DATE</span>
+                    <div className={styles.resizer} onMouseDown={e => startDrag('date', e)}/>
+                </div>
+                <div className={styles.headerCell} style={{width: columnWidths.time}}>
+                    <span>TIME</span>
+                    <div className={styles.resizer} onMouseDown={e => startDrag('time', e)}/>
+                </div>
+                <div className={styles.headerCell} style={{width: columnWidths.tag}}>
+                    <span>TAG</span>
+                    <div className={styles.resizer} onMouseDown={e => startDrag('tag', e)}/>
+                </div>
+                <div className={`${styles.headerCell} ${styles.headerCellMessage}`}>
+                    <span>MESSAGE</span>
+                </div>
+            </div>
+
             {stickyPinnedEntries.length > 0 && (
                 <div className={styles.stickyContainer}>
                     {stickyPinnedEntries.map(item => (
@@ -255,32 +273,6 @@ export default function LogList() {
             )}
 
             <div className={styles.hScrollWrapper}>
-                <div className={styles.headerRow}>
-                    <div className={styles.headerCell} style={{width: columnWidths.pin}}>
-                        <span>PIN</span>
-                        <div className={styles.resizer} onMouseDown={e => startDrag('pin', e)}/>
-                    </div>
-                    <div className={styles.headerCell} style={{width: columnWidths.level}}>
-                        <span>LEVEL</span>
-                        <div className={styles.resizer} onMouseDown={e => startDrag('level', e)}/>
-                    </div>
-                    <div className={styles.headerCell} style={{width: columnWidths.date}}>
-                        <span>DATE</span>
-                        <div className={styles.resizer} onMouseDown={e => startDrag('date', e)}/>
-                    </div>
-                    <div className={styles.headerCell} style={{width: columnWidths.time}}>
-                        <span>TIME</span>
-                        <div className={styles.resizer} onMouseDown={e => startDrag('time', e)}/>
-                    </div>
-                    <div className={styles.headerCell} style={{width: columnWidths.tag}}>
-                        <span>TAG</span>
-                        <div className={styles.resizer} onMouseDown={e => startDrag('tag', e)}/>
-                    </div>
-                    <div className={`${styles.headerCell} ${styles.headerCellMessage}`}>
-                        <span>MESSAGE</span>
-                    </div>
-                </div>
-
                 <div
                     ref={parentRef}
                     className={styles.scrollArea}
@@ -295,6 +287,7 @@ export default function LogList() {
                     >
                         {virtualizer.getVirtualItems().map(virtualRow => {
                             const item = entries[virtualRow.index]
+                            if (!item) return null
                             const ranges = searchHighlightRanges[String(item.id)] || []
 
                             return (
@@ -351,17 +344,9 @@ export default function LogList() {
                 </div>
             </div>
 
-            {hasMore && (
-                <div className={styles.loadMore}>
-                    <button
-                        className={styles.loadMoreBtn}
-                        disabled={isLoading}
-                        onClick={loadMore}
-                    >
-                        {isLoading ? 'Loading...' : 'Load More'}
-                    </button>
-                </div>
-            )}
+            <div className={styles.statusBar}>
+                {entries.length} / {total} entries
+            </div>
         </div>
     )
 }
