@@ -26,6 +26,7 @@ interface FilterState {
 
 interface LogState {
     metadata: LogMetadata | null
+    fileTimeRange: { startTimestamp: number; endTimestamp: number } | null
     fileId: string | null
     entries: LogEntry[]
     total: number
@@ -36,7 +37,6 @@ interface LogState {
     searchHighlightRanges: Record<string, [number, number][]>
     searchMatchCount: number
     filters: FilterState
-    resolution: 'sec' | 'min' | 'hour'
     buckets: TimelineBucket[]
     tagColors: Record<string, string>
     selectedRange: { from: number; to: number } | null
@@ -59,8 +59,9 @@ interface LogActions {
     resetFilters: () => void
     setFileId: (id: string) => void
     clearLog: () => void
-    loadTimeline: (newResolution: string) => Promise<void>
+    loadTimeline: (numBuckets?: number, timeFrom?: number, timeTo?: number) => Promise<void>
     setSelectedRange: (range: { from: number; to: number } | null) => void
+    resetTimeRange: () => void
 }
 
 const DEFAULT_LEVELS = ['VERBOSE', 'DEBUG', 'INFO', 'WARN', 'ERROR', 'ASSERT']
@@ -81,6 +82,7 @@ export const useLogStore = create<LogStore>()(
     persist(
         (set, get) => ({
             metadata: null,
+            fileTimeRange: null,
             fileId: null,
             entries: [],
             total: 0,
@@ -91,7 +93,6 @@ export const useLogStore = create<LogStore>()(
             searchHighlightRanges: {},
             searchMatchCount: 0,
             filters: getDefaultFilters(),
-            resolution: 'sec',
             buckets: [],
             tagColors: {},
             selectedRange: null,
@@ -108,12 +109,29 @@ export const useLogStore = create<LogStore>()(
                     }))
                     set({
                         metadata: result,
-                        fileId: result.fileId
+                        fileId: result.fileId,
+                        fileTimeRange: {
+                            startTimestamp: result.timeRange.startTimestamp,
+                            endTimestamp: result.timeRange.endTimestamp
+                        }
                     })
-                    get().resetFilters()
+                    const timeFrom = result.timeRange.startTimestamp
+                    const timeTo = result.timeRange.endTimestamp
+                    set({
+                        filters: {
+                            levels: [...DEFAULT_LEVELS],
+                            tagPattern: '',
+                            tagRegex: false,
+                            contentFilter: '',
+                            searchQuery: null,
+                            timeFrom,
+                            timeTo
+                        }
+                    })
                     console.log('[LogStore] calling fetchFilteredLogs after upload')
                     await get().fetchFilteredLogs()
                     console.log('[LogStore] fetchFilteredLogs completed')
+                    await get().loadTimeline(20, timeFrom, timeTo)
                 } catch (e) {
                     console.error('[LogStore] uploadLog error:', e)
                     set({error: e instanceof Error ? e.message : 'Upload failed'})
@@ -271,6 +289,7 @@ export const useLogStore = create<LogStore>()(
             clearLog: () => {
                 set({
                     metadata: null,
+                    fileTimeRange: null,
                     fileId: null,
                     entries: [],
                     total: 0,
@@ -283,13 +302,18 @@ export const useLogStore = create<LogStore>()(
                 })
             },
 
-            loadTimeline: async (newResolution: string) => {
-                const {fileId} = get()
+            loadTimeline: async (numBuckets?: number, timeFrom?: number, timeTo?: number) => {
+                const {fileId, metadata} = get()
                 if (!fileId) return
-                set({resolution: newResolution as 'sec' | 'min' | 'hour'})
                 try {
-                    const result = await getTimeline(fileId, newResolution)
-                    set({buckets: result.buckets, tagColors: result.tagColors})
+                    const effectiveTimeFrom = timeFrom ?? metadata?.timeRange?.startTimestamp
+                    const effectiveTimeTo = timeTo ?? metadata?.timeRange?.endTimestamp
+                    const result = await getTimeline(fileId, numBuckets, effectiveTimeFrom, effectiveTimeTo)
+                    set({
+                        buckets: result.buckets,
+                        tagColors: result.tagColors,
+                        metadata: metadata ? {...metadata, timeRange: result.timeRange} : metadata
+                    })
                 } catch (e) {
                     console.error('[LogStore] loadTimeline error:', e)
                 }
@@ -305,15 +329,35 @@ export const useLogStore = create<LogStore>()(
                     }
                 })
                 get().fetchFilteredLogs()
+                if (range) {
+                    get().loadTimeline(20, range.from, range.to)
+                }
+            },
+
+            resetTimeRange: () => {
+                const {fileTimeRange} = get()
+                if (!fileTimeRange) return
+                const from = fileTimeRange.startTimestamp
+                const to = fileTimeRange.endTimestamp
+                set({
+                    selectedRange: null,
+                    filters: {
+                        ...get().filters,
+                        timeFrom: from,
+                        timeTo: to
+                    }
+                })
+                get().fetchFilteredLogs()
+                get().loadTimeline(20, from, to)
             }
         }),
         {
             name: 'logvue-storage',
             partialize: (state) => ({
+                metadata: state.metadata,
                 fileId: state.fileId,
                 filters: state.filters,
                 pinnedEntryIds: state.pinnedEntryIds,
-                resolution: state.resolution,
                 selectedRange: state.selectedRange
             })
         }

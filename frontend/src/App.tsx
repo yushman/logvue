@@ -2,7 +2,6 @@ import {useEffect, useState} from 'react'
 import FileDropzone from './components/FileDropzone'
 import LogLevelFilter from './components/LogLevelFilter'
 import FilterBar from './components/FilterBar'
-import ResolutionSelector from './components/ResolutionSelector'
 import Timeline from './components/Timeline'
 import LogList from './components/LogList'
 import ErrorDisplay from './components/ErrorDisplay'
@@ -12,15 +11,12 @@ import styles from './App.module.css'
 export default function App() {
     const {
         metadata,
-        fileId,
         entries,
         error,
-        resolution,
         buckets,
         tagColors,
         selectedRange,
         uploadLog,
-        loadTimeline,
         setSelectedRange,
         fetchFilteredLogs,
         clearLog
@@ -37,23 +33,17 @@ export default function App() {
     }, [error])
 
     useEffect(() => {
-        if (metadata && fileId && entries.length === 0) {
+        if (metadata && entries.length === 0) {
             fetchFilteredLogs()
-            loadTimeline(resolution)
         }
-    }, [metadata, fileId])
+    }, [metadata])
 
     const handleFileSelected = async (file: File) => {
         await uploadLog(file)
-        await loadTimeline(resolution)
     }
 
     const handleRangeSelect = (range: { from: number; to: number } | null) => {
         setSelectedRange(range)
-    }
-
-    const handleResolutionChange = (res: 'sec' | 'min' | 'hour') => {
-        loadTimeline(res)
     }
 
     const dismissError = () => {
@@ -91,14 +81,12 @@ export default function App() {
                         <LogLevelFilter/>
                         <FilterBar/>
                         <div className={styles.timelineContainer}>
-                            <ResolutionSelector value={resolution} onChange={handleResolutionChange}/>
                             {metadata.timeRange && (
                                 <Timeline
                                     buckets={buckets}
                                     tagColors={tagColors}
                                     timeRange={metadata.timeRange}
                                     selectedRange={selectedRange}
-                                    resolution={resolution}
                                     onRangeSelect={handleRangeSelect}
                                 />
                             )}

@@ -15,20 +15,19 @@ function datetimeLocalToEpoch(datetime: string): number | null {
 }
 
 export default function TimeRangePicker() {
-    const {filters, metadata, setTimeFrom, setTimeTo} = useLogStore()
+    const {filters, setTimeFrom, setTimeTo, resetTimeRange} = useLogStore()
+
+    // Sync local state when filters change externally (e.g., from timeline drill-down)
     const [timeFromLocal, setTimeFromLocal] = useState(epochToDatetimeLocal(filters.timeFrom))
     const [timeToLocal, setTimeToLocal] = useState(epochToDatetimeLocal(filters.timeTo))
 
     useEffect(() => {
-        if (metadata?.timeRange && metadata.timeRange.startTimestamp > 0) {
-            if (!timeFromLocal) {
-                setTimeFromLocal(epochToDatetimeLocal(metadata.timeRange.startTimestamp))
-            }
-            if (!timeToLocal) {
-                setTimeToLocal(epochToDatetimeLocal(metadata.timeRange.endTimestamp))
-            }
-        }
-    }, [metadata])
+        setTimeFromLocal(epochToDatetimeLocal(filters.timeFrom))
+    }, [filters.timeFrom])
+
+    useEffect(() => {
+        setTimeToLocal(epochToDatetimeLocal(filters.timeTo))
+    }, [filters.timeTo])
 
     const handleTimeFromChange = (value: string) => {
         setTimeFromLocal(value)
@@ -38,15 +37,6 @@ export default function TimeRangePicker() {
     const handleTimeToChange = (value: string) => {
         setTimeToLocal(value)
         setTimeTo(datetimeLocalToEpoch(value))
-    }
-
-    const resetTimeRange = () => {
-        if (metadata?.timeRange && metadata.timeRange.startTimestamp > 0) {
-            setTimeFromLocal(epochToDatetimeLocal(metadata.timeRange.startTimestamp))
-            setTimeToLocal(epochToDatetimeLocal(metadata.timeRange.endTimestamp))
-            setTimeFrom(metadata.timeRange.startTimestamp)
-            setTimeTo(metadata.timeRange.endTimestamp)
-        }
     }
 
     return (

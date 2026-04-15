@@ -96,48 +96,58 @@ class LogService(private val parser: LogParser) {
 
     fun getTimeline(request: TimelineRequest): TimelineResponse {
         val parseResult = logFiles[request.fileId]
-            ?: return TimelineResponse(TimeRange(0, 0), request.resolution, emptyList(), emptyMap())
+            ?: return TimelineResponse(TimeRange(0, 0), emptyList(), emptyMap())
 
         val entries = parseResult.entries
         if (entries.isEmpty()) {
-            return TimelineResponse(parseResult.metadata.timeRange, request.resolution, emptyList(), emptyMap())
+            return TimelineResponse(parseResult.metadata.timeRange, emptyList(), emptyMap())
         }
 
-        val timeRange = parseResult.metadata.timeRange
-        val bucketSizeMs = when (request.resolution) {
-            "min" -> 60_000L
-            "hour" -> 3_600_000L
-            else -> 1_000L // "sec" or default
-        }
+        val globalTimeRange = parseResult.metadata.timeRange
+        val numBuckets = request.numBuckets ?: 20
 
-        // Group entries into buckets
-        val bucketMap = mutableMapOf<Long, MutableList<LogEntry>>()
-        for (entry in entries) {
-            val bucketTs = entry.timestamp - (entry.timestamp % bucketSizeMs)
-            bucketMap.getOrPut(bucketTs) { mutableListOf() }.add(entry)
-        }
+        val effectiveTimeRange = TimeRange(
+            startTimestamp = request.timeFrom ?: globalTimeRange.startTimestamp,
+            endTimestamp = request.timeTo ?: globalTimeRange.endTimestamp
+        )
 
-        // Build buckets with tag counts
-        val buckets = bucketMap.map { (timestamp, bucketEntries) ->
-            val tagCounts = mutableMapOf<String, Int>()
-            for (entry in bucketEntries) {
-                val tag = entry.header.tag ?: "(no tag)"
-                tagCounts[tag] = tagCounts.getOrDefault(tag, 0) + 1
+        val rangeStart = effectiveTimeRange.startTimestamp
+        val rangeEnd = effectiveTimeRange.endTimestamp
+        val rangeMs = rangeEnd - rangeStart
+
+        val buckets = if (rangeMs <= 0) {
+            emptyList()
+        } else {
+            val bucketSizeMs = rangeMs / numBuckets
+            val bucketMap = mutableMapOf<Int, MutableList<LogEntry>>()
+
+            for (entry in entries) {
+                if (entry.timestamp < rangeStart || entry.timestamp > rangeEnd) continue
+                val bucketIndex = ((entry.timestamp - rangeStart) / bucketSizeMs).toInt().coerceIn(0, numBuckets - 1)
+                bucketMap.getOrPut(bucketIndex) { mutableListOf() }.add(entry)
             }
-            TimelineBucket(
-                timestamp = timestamp,
-                count = bucketEntries.size,
-                tags = tagCounts
-            )
-        }.sortedBy { it.timestamp }
+
+            (0 until numBuckets).map { i ->
+                val bucketEntries = bucketMap[i] ?: emptyList()
+                val tagCounts = mutableMapOf<String, Int>()
+                for (entry in bucketEntries) {
+                    val tag = entry.header.tag ?: "(no tag)"
+                    tagCounts[tag] = tagCounts.getOrDefault(tag, 0) + 1
+                }
+                TimelineBucket(
+                    timestamp = rangeStart + (i * bucketSizeMs),
+                    count = bucketEntries.size,
+                    tags = tagCounts
+                )
+            }
+        }
 
         // Build tag colors map (deterministic hash to palette)
         val allTags = buckets.flatMap { it.tags.keys }.toSet()
         val tagColors = allTags.associateWith { tag -> TAG_PALETTE[hashString(tag) % TAG_PALETTE.size] }
 
         return TimelineResponse(
-            timeRange = timeRange,
-            resolution = request.resolution,
+            timeRange = effectiveTimeRange,
             buckets = buckets,
             tagColors = tagColors
         )

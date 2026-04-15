@@ -5,13 +5,14 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class TimelineRequest(
     val fileId: String,
-    val resolution: String = "sec"
+    val numBuckets: Int? = null,
+    val timeFrom: Long? = null,
+    val timeTo: Long? = null
 )
 
 @Serializable
 data class TimelineResponse(
     val timeRange: TimeRange,
-    val resolution: String,
     val buckets: List<TimelineBucket>,
     val tagColors: Map<String, String>
 )

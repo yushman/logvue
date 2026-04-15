@@ -45,8 +45,18 @@ export async function filterLogs(request: FilterRequest): Promise<FilterResponse
     return response.json()
 }
 
-export async function getTimeline(fileId: string, resolution: string): Promise<TimelineResponse> {
-    const response = await fetch(`/api/logs/timeline?fileId=${encodeURIComponent(fileId)}&resolution=${encodeURIComponent(resolution)}`)
+export async function getTimeline(
+    fileId: string,
+    numBuckets?: number,
+    timeFrom?: number,
+    timeTo?: number
+): Promise<TimelineResponse> {
+    let url = `/api/logs/timeline?fileId=${encodeURIComponent(fileId)}`
+    if (numBuckets !== undefined) url += `&numBuckets=${numBuckets}`
+    if (timeFrom !== undefined) url += `&timeFrom=${timeFrom}`
+    if (timeTo !== undefined) url += `&timeTo=${timeTo}`
+
+    const response = await fetch(url)
 
     if (!response.ok) {
         throw new Error(`Timeline failed: ${response.statusText}`)

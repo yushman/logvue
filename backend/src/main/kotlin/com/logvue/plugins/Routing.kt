@@ -68,8 +68,13 @@ fun Application.configureRouting(logService: LogService) {
                 get("/timeline") {
                     val fileId = call.request.queryParameters["fileId"]
                         ?: return@get call.respond(HttpStatusCode.BadRequest, "fileId required")
-                    val resolution = call.request.queryParameters["resolution"] ?: "sec"
-                    val result = logService.getTimeline(TimelineRequest(fileId, resolution))
+                    val numBucketsStr = call.request.queryParameters["numBuckets"]
+                    val numBuckets = numBucketsStr?.toIntOrNull()
+                    val timeFromStr = call.request.queryParameters["timeFrom"]
+                    val timeFrom = timeFromStr?.toLongOrNull()
+                    val timeToStr = call.request.queryParameters["timeTo"]
+                    val timeTo = timeToStr?.toLongOrNull()
+                    val result = logService.getTimeline(TimelineRequest(fileId, numBuckets, timeFrom, timeTo))
                     call.respond(result)
                 }
 

@@ -64,7 +64,6 @@ export interface TimelineBucket {
 
 export interface TimelineResponse {
     timeRange: TimeRange
-    resolution: string
     buckets: TimelineBucket[]
     tagColors: Record<string, string>
 }
