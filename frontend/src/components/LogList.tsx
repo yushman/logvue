@@ -186,7 +186,7 @@ export default function LogList() {
         )
     }
 
-    if (entries.length === 0) {
+    if (entries.length === 0 && stickyPinnedEntries.length === 0) {
         return (
             <div className={styles.container}>
                 <div className={styles.empty}>

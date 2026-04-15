@@ -226,6 +226,16 @@ export const useLogStore = create<LogStore>()(
                         })
                     } else {
                         set({pinnedEntryIds: [...pinnedEntryIds, entryId]})
+                        const {fileId} = get()
+                        if (fileId) {
+                            getEntry(fileId, entryId).then(entry => {
+                                if (entry) {
+                                    set(state => ({
+                                        pinnedEntriesCache: [...state.pinnedEntriesCache, entry]
+                                    }))
+                                }
+                            })
+                        }
                     }
                 } else {
                     set({pinnedEntryIds: pinnedEntryIds.filter(id => id !== entryId)})
