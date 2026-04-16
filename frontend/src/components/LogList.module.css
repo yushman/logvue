@@ -35,7 +35,7 @@
 
 .searchInput {
     flex: 1;
-    min-width: 600px;
+    min-width: 500px;
     padding: 6px 10px;
     padding-right: 28px;
     background: var(--color-bg-input);

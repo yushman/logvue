@@ -1,0 +1,16 @@
+00:46:47.548 [main] INFO  Application - Starting application
+00:46:47.549 [main] DEBUG Application - Loading configuration
+Feb-03 22:13:59 System Info System initialized
+Feb-03 22:14:00 Network Warn Connection timeout
+14-12 22:13:59 I Tag Simple format entry
+at java.base/java.lang.Thread.run(Thread.java:1583)
+00:46:47.550 [worker-1] ERROR Application - Unhandled error
+Caused by: java.lang.RuntimeException: Test exception
+Feb-03 22:14:01 Database Info Query executed in 12ms
+14-12 22:14:00 W Tag Another simple format entry
+00:46:47.551 [main] WARN Application - Configuration file not found, using defaults
+Feb-03 22:14:02 Auth Error Invalid credentials
+org.springframework.web.servlet.DispatcherServlet
+    at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:518)
+14-12 22:14:01 I Tag More simple entries
+00:46:47.552 [worker-2] INFO Application - Shutdown complete

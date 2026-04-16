@@ -23,6 +23,10 @@ tasks.withType<KotlinCompile> {
     }
 }
 
+tasks.test {
+    useJUnitPlatform()
+}
+
 dependencies {
     // Ktor server
     implementation("io.ktor:ktor-server-core:2.3.7")
@@ -44,4 +48,5 @@ dependencies {
     // Testing
     testImplementation("io.ktor:ktor-server-test-host:2.3.7")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
 }

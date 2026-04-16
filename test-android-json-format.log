@@ -1,0 +1,8 @@
+{
+  "metadata": {
+    "device": { "name": "TestDevice" }
+  },
+  "logcatMessages": [
+    { "header": { "logLevel": "INFO", "timestamp": { "seconds": 1700000000, "nanos": 0 } }, "message": "Android JSON log entry" }
+  ]
+}

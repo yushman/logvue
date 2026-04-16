@@ -1,0 +1,440 @@
+> Task :backend:checkKotlinGradlePluginConfigurationErrors
+> Task :backend:compileKotlin UP-TO-DATE
+> Task :backend:compileJava NO-SOURCE
+> Task :backend:processResources UP-TO-DATE
+> Task :backend:classes UP-TO-DATE
+Exception in thread "DisconnectableInputStream source reader" org.gradle.api.UncheckedIOException: java.io.IOException: Input/output error
+	at org.gradle.internal.UncheckedException.throwAsUncheckedException(UncheckedException.java:62)
+	at org.gradle.internal.UncheckedException.throwAsUncheckedException(UncheckedException.java:41)
+	at org.gradle.util.internal.DisconnectableInputStream$1.run(DisconnectableInputStream.java:127)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: java.io.IOException: Input/output error
+	at java.base/java.io.FileInputStream.readBytes(Native Method)
+	at java.base/java.io.FileInputStream.read(FileInputStream.java:287)
+	at java.base/java.io.BufferedInputStream.read1(BufferedInputStream.java:345)
+	at java.base/java.io.BufferedInputStream.implRead(BufferedInputStream.java:420)
+	at java.base/java.io.BufferedInputStream.read(BufferedInputStream.java:399)
+	at org.gradle.util.internal.DisconnectableInputStream$1.run(DisconnectableInputStream.java:98)
+	... 1 more
+
+> Task :backend:run
+00:46:47.548 [DefaultDispatcher-worker-2] INFO  ktor.application - Autoreload is disabled because the development mode is off.
+00:46:47.578 [DefaultDispatcher-worker-2] INFO  ktor.application - Application started in 0.04 seconds.
+00:46:47.578 [DefaultDispatcher-worker-2] INFO  ktor.application - Application started: io.ktor.server.application.Application@7801eb25
+00:46:47.591 [DefaultDispatcher-worker-3] INFO  ktor.application - Responding at http://0.0.0.0:8080
+00:46:48.512 [DefaultDispatcher-worker-1] INFO  ktor.application - 200 OK: GET - /health in 344ms
+00:49:19.891 [DefaultDispatcher-worker-1] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 178ms
+00:49:19.913 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 18ms
+00:49:19.918 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 6ms
+00:49:19.924 [DefaultDispatcher-worker-11] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 12ms
+00:49:19.965 [DefaultDispatcher-worker-8] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 4ms
+00:49:20.232 [DefaultDispatcher-worker-16] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 11ms
+00:49:27.080 [DefaultDispatcher-worker-10] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 13ms
+00:49:27.890 [DefaultDispatcher-worker-11] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 11ms
+00:49:28.739 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 10ms
+00:49:29.323 [DefaultDispatcher-worker-15] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 11ms
+00:49:29.771 [DefaultDispatcher-worker-16] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 9ms
+00:49:30.339 [DefaultDispatcher-worker-10] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 11ms
+00:49:31.273 [DefaultDispatcher-worker-11] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 12ms
+00:49:31.723 [DefaultDispatcher-worker-10] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 12ms
+00:49:32.290 [DefaultDispatcher-worker-10] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 12ms
+00:49:34.106 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 10ms
+00:49:34.106 [DefaultDispatcher-worker-11] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 10ms
+00:49:35.209 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 14ms
+00:49:35.209 [DefaultDispatcher-worker-1] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 14ms
+00:50:37.008 [DefaultDispatcher-worker-7] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 80ms
+00:50:37.014 [DefaultDispatcher-worker-2] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+00:50:37.032 [DefaultDispatcher-worker-7] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 4ms
+00:50:37.032 [DefaultDispatcher-worker-9] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 4ms
+00:50:37.079 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 3ms
+00:50:37.345 [DefaultDispatcher-worker-9] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 10ms
+00:50:51.626 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 13ms
+00:50:52.538 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 10ms
+00:50:53.038 [DefaultDispatcher-worker-7] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 10ms
+00:50:53.621 [DefaultDispatcher-worker-14] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 10ms
+00:50:54.204 [DefaultDispatcher-worker-10] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 9ms
+00:50:54.887 [DefaultDispatcher-worker-11] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 9ms
+00:51:00.605 [DefaultDispatcher-worker-9] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 16ms
+00:51:00.975 [DefaultDispatcher-worker-14] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 14ms
+00:51:02.210 [DefaultDispatcher-worker-15] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 13ms
+00:51:03.433 [DefaultDispatcher-worker-15] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 13ms
+00:51:06.002 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 10ms
+00:51:11.882 [DefaultDispatcher-worker-11] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 9ms
+00:51:11.883 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 10ms
+00:51:16.663 [DefaultDispatcher-worker-8] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 5ms
+00:51:16.663 [DefaultDispatcher-worker-11] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 5ms
+00:58:20.942 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 57ms
+00:58:20.949 [DefaultDispatcher-worker-2] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 3ms
+00:58:20.956 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 3ms
+00:58:20.958 [DefaultDispatcher-worker-2] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 3ms
+00:58:20.997 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 3ms
+00:58:21.260 [DefaultDispatcher-worker-2] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+01:11:17.806 [DefaultDispatcher-worker-1] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 52ms
+01:11:17.812 [DefaultDispatcher-worker-4] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+01:11:17.829 [DefaultDispatcher-worker-8] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+01:11:17.830 [DefaultDispatcher-worker-13] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 3ms
+01:11:17.879 [DefaultDispatcher-worker-4] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+01:11:18.145 [DefaultDispatcher-worker-14] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 9ms
+01:12:06.644 [DefaultDispatcher-worker-8] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 45ms
+01:12:06.650 [DefaultDispatcher-worker-14] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+01:12:06.668 [DefaultDispatcher-worker-7] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+01:12:06.669 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 3ms
+01:12:06.760 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+01:12:06.981 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 7ms
+01:15:47.928 [DefaultDispatcher-worker-4] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 35ms
+01:15:47.935 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 3ms
+01:15:47.954 [DefaultDispatcher-worker-7] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+01:15:47.955 [DefaultDispatcher-worker-4] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 3ms
+01:15:48.007 [DefaultDispatcher-worker-14] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 3ms
+01:15:48.263 [DefaultDispatcher-worker-4] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 5ms
+01:15:54.335 [DefaultDispatcher-worker-14] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 3ms
+01:15:54.897 [DefaultDispatcher-worker-13] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 4ms
+01:23:28.638 [DefaultDispatcher-worker-5] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 44ms
+01:23:28.644 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+01:23:28.662 [DefaultDispatcher-worker-2] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 1ms
+01:23:28.662 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 1ms
+01:23:28.710 [DefaultDispatcher-worker-15] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 3ms
+01:23:28.979 [DefaultDispatcher-worker-14] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+01:33:47.456 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 23ms
+01:33:47.462 [DefaultDispatcher-worker-1] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+01:33:47.480 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+01:33:47.480 [DefaultDispatcher-worker-10] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+01:33:47.506 [DefaultDispatcher-worker-13] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 3ms
+01:33:47.784 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 3ms
+01:38:52.201 [DefaultDispatcher-worker-9] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 50ms
+01:38:52.207 [DefaultDispatcher-worker-5] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+01:38:52.227 [DefaultDispatcher-worker-9] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 3ms
+01:38:52.228 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 4ms
+01:38:52.246 [DefaultDispatcher-worker-5] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+01:38:52.530 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+01:38:58.229 [DefaultDispatcher-worker-5] INFO  ktor.application - 400 Bad Request: POST - /api/logs/filter in 7ms
+01:38:58.240 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+01:38:59.441 [DefaultDispatcher-worker-10] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+01:39:00.111 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 5ms
+01:39:01.073 [DefaultDispatcher-worker-10] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+01:39:01.496 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 6ms
+01:39:03.751 [DefaultDispatcher-worker-14] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 9ms
+01:39:04.357 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 3ms
+01:39:05.275 [DefaultDispatcher-worker-5] INFO  ktor.application - 400 Bad Request: POST - /api/logs/filter in 1ms
+01:39:05.309 [DefaultDispatcher-worker-9] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+01:39:06.255 [DefaultDispatcher-worker-8] INFO  ktor.application - 400 Bad Request: POST - /api/logs/filter in 1ms
+01:39:14.304 [DefaultDispatcher-worker-14] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 1ms
+01:39:15.003 [DefaultDispatcher-worker-9] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 1ms
+01:52:04.636 [DefaultDispatcher-worker-2] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 61ms
+01:52:04.645 [DefaultDispatcher-worker-1] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 3ms
+01:52:04.665 [DefaultDispatcher-worker-8] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+01:52:04.665 [DefaultDispatcher-worker-2] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+01:52:04.718 [DefaultDispatcher-worker-9] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 4ms
+01:52:04.971 [DefaultDispatcher-worker-8] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 6ms
+01:52:53.116 [DefaultDispatcher-worker-5] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 44ms
+01:52:53.122 [DefaultDispatcher-worker-8] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 3ms
+01:52:53.131 [DefaultDispatcher-worker-2] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+01:52:53.131 [DefaultDispatcher-worker-13] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+01:52:53.147 [DefaultDispatcher-worker-14] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+01:52:53.446 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 9ms
+01:53:01.498 [DefaultDispatcher-worker-14] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 5ms
+01:53:02.351 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 5ms
+01:54:01.274 [DefaultDispatcher-worker-11] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 39ms
+01:54:01.279 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+01:54:01.295 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 1ms
+01:54:01.296 [DefaultDispatcher-worker-8] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+01:54:01.342 [DefaultDispatcher-worker-11] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 3ms
+01:54:01.612 [DefaultDispatcher-worker-15] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+01:55:33.420 [DefaultDispatcher-worker-1] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 44ms
+01:55:33.425 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+01:55:33.431 [DefaultDispatcher-worker-1] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+01:55:39.327 [DefaultDispatcher-worker-8] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 43ms
+01:55:39.333 [DefaultDispatcher-worker-4] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+01:55:39.339 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 1ms
+01:57:39.039 [DefaultDispatcher-worker-5] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+01:58:07.793 [DefaultDispatcher-worker-5] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+01:58:44.341 [DefaultDispatcher-worker-7] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 43ms
+01:58:44.348 [DefaultDispatcher-worker-8] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+01:58:44.369 [DefaultDispatcher-worker-4] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 3ms
+01:58:44.370 [DefaultDispatcher-worker-7] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 4ms
+01:58:44.392 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 3ms
+01:58:44.697 [DefaultDispatcher-worker-15] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 9ms
+01:59:20.241 [DefaultDispatcher-worker-14] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 9ms
+01:59:21.325 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+01:59:53.289 [DefaultDispatcher-worker-10] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 8ms
+01:59:53.939 [DefaultDispatcher-worker-5] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 8ms
+02:03:46.269 [DefaultDispatcher-worker-11] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 62ms
+02:03:46.275 [DefaultDispatcher-worker-2] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+02:03:46.280 [DefaultDispatcher-worker-5] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+02:03:46.280 [DefaultDispatcher-worker-11] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+02:03:46.295 [DefaultDispatcher-worker-2] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 1ms
+02:03:46.589 [DefaultDispatcher-worker-5] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 5ms
+02:07:04.126 [DefaultDispatcher-worker-10] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 42ms
+02:07:04.131 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+02:07:04.139 [DefaultDispatcher-worker-10] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+02:07:04.139 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+02:07:04.157 [DefaultDispatcher-worker-4] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 1ms
+02:07:04.452 [DefaultDispatcher-worker-2] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+02:08:11.573 [DefaultDispatcher-worker-1] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 48ms
+02:08:11.580 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+02:08:11.600 [DefaultDispatcher-worker-1] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+02:08:11.600 [DefaultDispatcher-worker-11] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+02:08:11.641 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 3ms
+02:08:11.916 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+02:15:39.402 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 73ms
+02:15:39.413 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 3ms
+02:15:39.434 [DefaultDispatcher-worker-7] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 1ms
+02:15:39.434 [DefaultDispatcher-worker-13] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 1ms
+02:15:39.464 [DefaultDispatcher-worker-8] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+02:15:39.750 [DefaultDispatcher-worker-14] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+02:18:32.497 [DefaultDispatcher-worker-10] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 41ms
+02:18:32.503 [DefaultDispatcher-worker-11] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+02:18:32.521 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+02:18:32.521 [DefaultDispatcher-worker-8] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 1ms
+02:18:32.542 [DefaultDispatcher-worker-13] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+02:18:32.838 [DefaultDispatcher-worker-15] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+02:18:44.347 [DefaultDispatcher-worker-9] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 9ms
+02:18:45.959 [DefaultDispatcher-worker-15] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 6ms
+02:21:02.338 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 41ms
+02:21:02.344 [DefaultDispatcher-worker-10] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 3ms
+02:21:02.350 [DefaultDispatcher-worker-13] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+02:21:02.350 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+02:21:02.367 [DefaultDispatcher-worker-9] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+02:21:02.659 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 3ms
+02:23:58.342 [DefaultDispatcher-worker-7] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 47ms
+02:23:58.349 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+02:23:58.369 [DefaultDispatcher-worker-13] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+02:23:58.369 [DefaultDispatcher-worker-7] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+02:23:58.392 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+02:23:58.687 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 9ms
+02:25:51.279 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 44ms
+02:25:51.283 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 1ms
+02:25:51.290 [DefaultDispatcher-worker-7] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+02:25:51.290 [DefaultDispatcher-worker-9] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+02:25:51.305 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 1ms
+02:25:51.601 [DefaultDispatcher-worker-10] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+02:28:42.888 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 41ms
+02:28:42.894 [DefaultDispatcher-worker-2] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+02:28:42.900 [DefaultDispatcher-worker-1] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+02:28:42.901 [DefaultDispatcher-worker-2] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+02:28:42.916 [DefaultDispatcher-worker-11] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+02:28:43.214 [DefaultDispatcher-worker-5] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+02:29:17.695 [DefaultDispatcher-worker-1] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 40ms
+02:29:17.700 [DefaultDispatcher-worker-2] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+02:29:17.707 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+02:29:17.707 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+02:29:17.723 [DefaultDispatcher-worker-4] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+02:29:18.022 [DefaultDispatcher-worker-15] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+02:34:28.663 [DefaultDispatcher-worker-13] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 38ms
+02:34:28.670 [DefaultDispatcher-worker-13] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+02:34:28.687 [DefaultDispatcher-worker-9] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 1ms
+02:34:28.687 [DefaultDispatcher-worker-11] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 1ms
+02:34:28.708 [DefaultDispatcher-worker-13] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+02:34:29.001 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+02:37:20.769 [DefaultDispatcher-worker-8] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 40ms
+02:37:20.774 [DefaultDispatcher-worker-1] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 1ms
+02:37:20.795 [DefaultDispatcher-worker-1] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+02:37:20.795 [DefaultDispatcher-worker-8] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+02:37:20.816 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+02:37:21.111 [DefaultDispatcher-worker-1] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+02:40:27.635 [DefaultDispatcher-worker-8] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 60ms
+02:40:27.643 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 3ms
+02:40:27.665 [DefaultDispatcher-worker-7] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 3ms
+02:40:27.666 [DefaultDispatcher-worker-8] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 4ms
+02:40:27.688 [DefaultDispatcher-worker-10] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+02:40:27.970 [DefaultDispatcher-worker-8] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 1ms
+02:40:29.475 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 6ms
+02:40:31.289 [DefaultDispatcher-worker-7] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 4ms
+02:40:32.473 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 4ms
+02:44:32.992 [DefaultDispatcher-worker-8] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 49ms
+02:44:32.999 [DefaultDispatcher-worker-9] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 3ms
+02:44:33.018 [DefaultDispatcher-worker-13] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+02:44:33.018 [DefaultDispatcher-worker-8] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+02:44:33.040 [DefaultDispatcher-worker-11] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+02:44:33.331 [DefaultDispatcher-worker-11] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+02:44:49.547 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+02:44:50.691 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 9ms
+02:44:51.546 [DefaultDispatcher-worker-1] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 14ms
+02:44:53.125 [DefaultDispatcher-worker-8] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 9ms
+02:44:54.996 [DefaultDispatcher-worker-5] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 4ms
+02:44:57.279 [DefaultDispatcher-worker-11] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 4ms
+02:44:58.679 [DefaultDispatcher-worker-5] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 4ms
+02:45:00.463 [DefaultDispatcher-worker-10] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 4ms
+02:45:07.574 [DefaultDispatcher-worker-5] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 9ms
+02:45:08.524 [DefaultDispatcher-worker-10] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 10ms
+02:45:11.664 [DefaultDispatcher-worker-1] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 5ms
+02:45:16.526 [DefaultDispatcher-worker-5] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 10ms
+02:45:16.567 [DefaultDispatcher-worker-7] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 6ms
+02:45:19.389 [DefaultDispatcher-worker-5] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 14ms
+02:45:21.926 [DefaultDispatcher-worker-10] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 11ms
+02:45:21.955 [DefaultDispatcher-worker-8] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 7ms
+02:45:24.958 [DefaultDispatcher-worker-7] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 9ms
+02:45:24.998 [DefaultDispatcher-worker-8] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 6ms
+02:45:25.457 [DefaultDispatcher-worker-5] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+02:45:26.298 [DefaultDispatcher-worker-1] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+02:45:31.347 [DefaultDispatcher-worker-2] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 5ms
+03:02:21.122 [DefaultDispatcher-worker-11] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 53ms
+03:02:21.129 [DefaultDispatcher-worker-10] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 3ms
+03:02:21.148 [DefaultDispatcher-worker-11] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 1ms
+03:02:21.149 [DefaultDispatcher-worker-8] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+03:02:21.173 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 3ms
+03:02:21.453 [DefaultDispatcher-worker-15] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+03:02:28.391 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 9ms
+03:02:30.706 [DefaultDispatcher-worker-10] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+03:02:32.611 [DefaultDispatcher-worker-15] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 4ms
+03:02:34.557 [DefaultDispatcher-worker-10] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 9ms
+03:02:34.596 [DefaultDispatcher-worker-14] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 6ms
+03:02:38.438 [DefaultDispatcher-worker-9] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 9ms
+03:02:38.466 [DefaultDispatcher-worker-14] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 7ms
+03:02:50.530 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 7ms
+03:02:50.860 [DefaultDispatcher-worker-11] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 12ms
+03:02:57.384 [DefaultDispatcher-worker-8] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 16ms
+03:02:58.982 [DefaultDispatcher-worker-11] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 16ms
+03:03:01.873 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 13ms
+03:03:01.902 [DefaultDispatcher-worker-11] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 9ms
+03:03:04.758 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 15ms
+03:03:05.234 [DefaultDispatcher-worker-9] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 12ms
+03:03:06.081 [DefaultDispatcher-worker-14] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 17ms
+03:03:06.108 [DefaultDispatcher-worker-9] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 6ms
+03:03:06.962 [DefaultDispatcher-worker-14] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 9ms
+03:03:08.162 [DefaultDispatcher-worker-9] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 16ms
+03:03:09.615 [DefaultDispatcher-worker-14] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 9ms
+03:03:15.632 [DefaultDispatcher-worker-11] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 15ms
+03:03:18.023 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+03:03:19.183 [DefaultDispatcher-worker-11] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 13ms
+03:03:20.682 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 9ms
+03:03:21.646 [DefaultDispatcher-worker-2] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 14ms
+03:03:23.148 [DefaultDispatcher-worker-7] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+03:03:24.287 [DefaultDispatcher-worker-1] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 16ms
+03:03:25.885 [DefaultDispatcher-worker-7] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+03:03:27.911 [DefaultDispatcher-worker-4] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 16ms
+03:03:31.613 [DefaultDispatcher-worker-9] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 16ms
+03:03:33.027 [DefaultDispatcher-worker-10] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+03:03:34.294 [DefaultDispatcher-worker-9] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 9ms
+03:03:35.333 [DefaultDispatcher-worker-10] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+03:03:36.230 [DefaultDispatcher-worker-1] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 13ms
+03:03:41.411 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+03:03:42.995 [DefaultDispatcher-worker-1] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 9ms
+03:03:43.815 [DefaultDispatcher-worker-2] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 9ms
+03:03:44.631 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 14ms
+03:03:45.739 [DefaultDispatcher-worker-4] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+03:03:48.053 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+03:03:48.802 [DefaultDispatcher-worker-2] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 6ms
+03:03:49.404 [DefaultDispatcher-worker-4] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+03:03:50.833 [DefaultDispatcher-worker-2] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 5ms
+03:03:51.654 [DefaultDispatcher-worker-1] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+03:03:52.386 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+03:03:57.128 [DefaultDispatcher-worker-1] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 5ms
+03:04:10.515 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 4ms
+03:04:10.542 [DefaultDispatcher-worker-7] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+03:04:11.620 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 9ms
+03:04:12.788 [DefaultDispatcher-worker-9] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+03:04:17.489 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 9ms
+03:04:18.437 [DefaultDispatcher-worker-9] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 9ms
+03:04:19.270 [DefaultDispatcher-worker-7] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+03:06:30.921 [DefaultDispatcher-worker-8] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 58ms
+03:06:30.928 [DefaultDispatcher-worker-7] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 3ms
+03:06:30.948 [DefaultDispatcher-worker-8] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+03:06:30.948 [DefaultDispatcher-worker-11] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+03:06:30.972 [DefaultDispatcher-worker-7] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 3ms
+03:06:31.263 [DefaultDispatcher-worker-11] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+03:06:39.421 [DefaultDispatcher-worker-13] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+03:06:40.622 [DefaultDispatcher-worker-11] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 9ms
+03:06:41.575 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 13ms
+03:06:42.421 [DefaultDispatcher-worker-10] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+03:06:43.220 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 7ms
+03:06:43.702 [DefaultDispatcher-worker-8] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+03:06:59.420 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 9ms
+03:07:00.769 [DefaultDispatcher-worker-7] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+03:07:01.586 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 7ms
+03:07:03.203 [DefaultDispatcher-worker-4] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+03:07:04.320 [DefaultDispatcher-worker-9] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 9ms
+03:07:05.054 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 4ms
+03:08:21.006 [DefaultDispatcher-worker-2] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 44ms
+03:08:21.013 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 3ms
+03:08:21.021 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 3ms
+03:08:21.022 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+03:08:21.038 [DefaultDispatcher-worker-13] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+03:08:21.330 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+03:08:31.309 [DefaultDispatcher-worker-13] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+03:08:32.170 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+03:08:37.696 [DefaultDispatcher-worker-9] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 15ms
+03:08:38.070 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 16ms
+03:08:38.884 [DefaultDispatcher-worker-13] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 15ms
+03:08:39.267 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 18ms
+03:08:42.319 [DefaultDispatcher-worker-13] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+03:14:19.081 [DefaultDispatcher-worker-7] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 45ms
+03:14:19.087 [DefaultDispatcher-worker-2] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+03:14:19.095 [DefaultDispatcher-worker-7] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+03:14:19.096 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 3ms
+03:14:19.114 [DefaultDispatcher-worker-2] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+03:14:19.406 [DefaultDispatcher-worker-1] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 7ms
+03:14:23.348 [DefaultDispatcher-worker-15] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 16ms
+03:14:26.460 [DefaultDispatcher-worker-1] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 15ms
+03:14:27.461 [DefaultDispatcher-worker-15] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+03:14:33.610 [DefaultDispatcher-worker-1] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 43ms
+03:14:33.616 [DefaultDispatcher-worker-15] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 3ms
+03:14:33.621 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+03:14:33.621 [DefaultDispatcher-worker-8] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+03:14:33.636 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+03:14:33.937 [DefaultDispatcher-worker-5] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 9ms
+03:14:37.101 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 9ms
+03:14:41.373 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+03:15:30.494 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 71ms
+03:15:30.501 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 3ms
+03:15:30.519 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 2ms
+03:15:30.519 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+03:15:30.558 [DefaultDispatcher-worker-5] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 2ms
+03:15:30.835 [DefaultDispatcher-worker-9] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+03:15:33.697 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 16ms
+03:17:41.624 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 3ms
+03:17:41.971 [DefaultDispatcher-worker-8] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+03:17:43.366 [DefaultDispatcher-worker-4] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 11ms
+03:17:47.057 [DefaultDispatcher-worker-2] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 15ms
+03:17:47.900 [DefaultDispatcher-worker-4] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 19ms
+03:17:48.635 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 13ms
+03:17:53.349 [DefaultDispatcher-worker-2] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 3ms
+03:17:54.257 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 8ms
+03:17:57.557 [DefaultDispatcher-worker-5] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 7ms
+03:18:00.188 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 7ms
+03:18:01.557 [DefaultDispatcher-worker-1] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 8ms
+03:18:03.373 [DefaultDispatcher-worker-6] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 8ms
+03:18:04.406 [DefaultDispatcher-worker-5] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 7ms
+03:18:05.423 [DefaultDispatcher-worker-8] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 8ms
+03:18:06.324 [DefaultDispatcher-worker-5] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 8ms
+03:18:07.024 [DefaultDispatcher-worker-9] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 8ms
+03:18:07.486 [DefaultDispatcher-worker-8] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 4ms
+03:18:08.857 [DefaultDispatcher-worker-4] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 8ms
+03:18:09.337 [DefaultDispatcher-worker-8] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 7ms
+03:18:21.290 [DefaultDispatcher-worker-2] INFO  ktor.application - 200 OK: GET - /api/logs/timeline in 7ms
+03:19:13.204 [DefaultDispatcher-worker-5] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 18ms
+03:19:13.204 [DefaultDispatcher-worker-2] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 18ms
+03:19:20.819 [DefaultDispatcher-worker-1] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 25ms
+03:19:24.225 [DefaultDispatcher-worker-5] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+03:19:24.225 [DefaultDispatcher-worker-9] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+03:19:28.346 [DefaultDispatcher-worker-1] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 13ms
+03:19:28.346 [DefaultDispatcher-worker-5] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 13ms
+03:19:37.659 [DefaultDispatcher-worker-5] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 8ms
+03:19:37.660 [DefaultDispatcher-worker-4] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 10ms
+03:19:43.725 [DefaultDispatcher-worker-4] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 24ms
+03:19:43.725 [DefaultDispatcher-worker-5] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 24ms
+03:19:53.860 [DefaultDispatcher-worker-12] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 7ms
+03:19:53.860 [DefaultDispatcher-worker-13] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 7ms
+
+> Task :backend:run FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':backend:run'.
+> Process 'command '/Users/ivyush/Library/Java/JavaVirtualMachines/ms-21.0.10/Contents/Home/bin/java'' finished with non-zero exit value 137
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.5/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD FAILED in 18h 32m 51s
+4 actionable tasks: 2 executed, 2 up-to-date

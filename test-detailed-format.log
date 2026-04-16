@@ -1,0 +1,18 @@
+00:46:47.548 [DefaultDispatcher-worker-2] INFO  ktor.application - Autoreload is disabled because the development mode is off.
+00:46:47.578 [DefaultDispatcher-worker-2] INFO  ktor.application - Application started in 0.04 seconds.
+00:46:47.591 [DefaultDispatcher-worker-3] INFO  ktor.application - Responding at http://0.0.0.0:8080
+00:46:48.512 [DefaultDispatcher-worker-1] INFO  ktor.application - 200 OK: GET - /health in 344ms
+00:49:19.891 [DefaultDispatcher-worker-1] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 178ms
+00:49:19.913 [DefaultDispatcher-worker-3] INFO  ktor.application - 200 OK: POST - /api/logs/filter in 18ms
+00:49:27.080 [DefaultDispatcher-worker-10] WARN  ktor.application - Slow request detected: POST - /api/logs/filter in 13s
+00:49:28.739 [DefaultDispatcher-worker-6] ERROR ktor.application - Database connection timeout after 30s
+00:50:37.008 [DefaultDispatcher-worker-7] INFO  ktor.application - 200 OK: POST - /api/logs/upload in 80ms
+00:50:37.032 [DefaultDispatcher-worker-9] DEBUG ktor.application - Cache hit for key: user_preferences_123
+00:51:00.605 [DefaultDispatcher-worker-9] WARN  ktor.application - Memory usage above 80%: 847MB / 1024MB
+00:51:06.002 [DefaultDispatcher-worker-3] ERROR ktor.application - Unhandled exception in request:
+java.lang.NullPointerException: Cannot invoke method on null object
+    at com.logvue.service.LogService.filterLogs(LogService.kt:45)
+    at com.logvue.plugins.RoutingKt$configureRouting$1$2$1.invokeSuspend(Routing.kt:38)
+    at io.ktor.server.routing.Route$buildPipeline$1$1.invokeSuspend(Route.kt:116)
+00:51:11.882 [DefaultDispatcher-worker-11] INFO  ktor.application - Request completed successfully
+00:51:16.663 [DefaultDispatcher-worker-8] DEBUG ktor.application - Garbage collection triggered: freed 156MB

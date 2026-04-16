@@ -18,7 +18,8 @@ data class LogHeader(
     val applicationId: String? = null,
     val processName: String? = null,
     val tag: String? = null,
-    val timestamp: Timestamp
+    val timestamp: Timestamp,
+    val threadName: String? = null
 )
 
 @Serializable

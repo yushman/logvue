@@ -1,6 +1,6 @@
 package com.logvue
 
-import com.logvue.data.parser.AndroidLogcatParser
+import com.logvue.data.parser.AutoDetectParser
 import com.logvue.plugins.configureRouting
 import com.logvue.service.LogService
 import io.ktor.http.*
@@ -18,7 +18,7 @@ import java.io.File
 
 fun main(args: Array<String>) {
     // Direct instantiation (no Koin needed for Stage 1)
-    val logParser = AndroidLogcatParser()
+    val logParser = AutoDetectParser()
     val logService = LogService(logParser)
 
     embeddedServer(CIO, port = 8080, host = "0.0.0.0") {

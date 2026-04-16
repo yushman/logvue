@@ -1,0 +1,14 @@
+14-12 22:13:59 I System Startup complete
+14-12 22:14:00 W Network Connection slow
+14-12 22:14:01 I Database Connected successfully
+14-12 22:14:02 E Database Query failed: timeout
+14-12 22:14:03 D Cache miss for key: user_session_123
+14-12 22:14:04 I User login attempted
+14-12 22:14:05 W Authentication warning: invalid token
+14-12 22:14:06 I User logged in successfully
+14-12 22:14:07 E Payment processing error: insufficient funds
+14-12 22:14:08 I API request received: /api/v1/users
+at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: java.io.IOException: Input/output error
+14-12 22:14:09 D Processing request took 45ms
+14-12 22:14:10 I Response sent: 200 OK
