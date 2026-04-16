@@ -74,6 +74,26 @@ class LogService(private val parser: LogParser) {
             filtered = filtered.filter { it.message.contains(request.contentFilter, ignoreCase = true) }
         }
 
+        // Filter by searchQuery
+        if (!request.searchQuery.isNullOrEmpty()) {
+            filtered = if (request.searchRegex) {
+                filtered.filter { entry ->
+                    try {
+                        val regexOptions =
+                            if (request.searchCaseSensitive) emptySet() else setOf(RegexOption.IGNORE_CASE)
+                        val regex = Regex(request.searchQuery, regexOptions)
+                        regex.containsMatchIn(entry.message)
+                    } catch (e: Exception) {
+                        false
+                    }
+                }
+            } else {
+                filtered.filter { entry ->
+                    entry.message.contains(request.searchQuery, ignoreCase = !request.searchCaseSensitive)
+                }
+            }
+        }
+
         // Filter by time range
         request.timeFrom?.let { from ->
             filtered = filtered.filter { it.timestamp >= from }
@@ -105,13 +125,26 @@ class LogService(private val parser: LogParser) {
         if (!request.searchQuery.isNullOrEmpty()) {
             entries.forEach { entry ->
                 val ranges = mutableListOf<List<Int>>()
-                var start = 0
                 val message = entry.message
-                while (true) {
-                    val idx = message.indexOf(request.searchQuery, start, ignoreCase = true)
-                    if (idx == -1) break
-                    ranges.add(listOf(idx, idx + request.searchQuery.length))
-                    start = idx + 1
+                if (request.searchRegex) {
+                    try {
+                        val regexOptions =
+                            if (request.searchCaseSensitive) emptySet() else setOf(RegexOption.IGNORE_CASE)
+                        val regex = Regex(request.searchQuery, regexOptions)
+                        regex.findAll(message).forEach { match ->
+                            ranges.add(listOf(match.range.first, match.range.last + 1))
+                        }
+                    } catch (e: Exception) {
+                        // Invalid regex, no highlights
+                    }
+                } else {
+                    var start = 0
+                    while (true) {
+                        val idx = message.indexOf(request.searchQuery, start, ignoreCase = !request.searchCaseSensitive)
+                        if (idx == -1) break
+                        ranges.add(listOf(idx, idx + request.searchQuery.length))
+                        start = idx + 1
+                    }
                 }
                 if (ranges.isNotEmpty()) {
                     searchHighlightRanges[entry.id.toString()] = ranges

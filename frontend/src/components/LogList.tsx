@@ -82,7 +82,11 @@ export default function LogList() {
         pagination,
         maxLogsReached,
         loadMore,
-        filters
+        filters,
+        setSearchParams,
+        setSearchCaseSensitive,
+        setSearchRegex,
+        clearSearch
     } = useLogStore()
 
     const hasMore = entries.length < total
@@ -91,6 +95,24 @@ export default function LogList() {
     const [viewportHeight, setViewportHeight] = useState(0)
     const [searchInput, setSearchInput] = useState('')
     const loadMoreRef = useRef(false)
+    const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+    // Debounced search - uses current toggle state at debounce time
+    const handleSearchChange = (value: string) => {
+        setSearchInput(value)
+        if (searchTimeoutRef.current) {
+            clearTimeout(searchTimeoutRef.current)
+        }
+        searchTimeoutRef.current = setTimeout(() => {
+            // Capture current toggle state when debounce fires
+            setSearchParams(value || null, filters.searchCaseSensitive, filters.searchRegex)
+        }, 500)
+    }
+
+    const handleClearSearch = () => {
+        setSearchInput('')
+        clearSearch()
+    }
 
     const pinnedIdsSet = useMemo(() => new Set(pinnedEntryIds), [pinnedEntryIds])
 
@@ -194,14 +216,50 @@ export default function LogList() {
         return (
             <div className={styles.container}>
                 <div className={styles.toolbar}>
-                    <input
-                        type="text"
-                        className={styles.searchInput}
-                        placeholder="Search..."
-                        value={searchInput}
-                        onChange={e => setSearchInput(e.target.value)}
-                    />
-                    <span className={styles.searchHint}>⌘K</span>
+                    <div className={styles.searchContainer}>
+                        <input
+                            type="text"
+                            className={styles.searchInput}
+                            placeholder="Search..."
+                            value={searchInput}
+                            onChange={e => handleSearchChange(e.target.value)}
+                        />
+                        {searchInput && (
+                            <button className={styles.clearSearchBtn} onClick={handleClearSearch} title="Clear search">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                     strokeWidth="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"/>
+                                    <line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                            </button>
+                        )}
+                        <button
+                            className={`${styles.searchToggleBtn} ${filters.searchCaseSensitive ? styles.searchToggleBtnActive : ''}`}
+                            onClick={() => {
+                                // Cancel any pending debounce and send all params together
+                                if (searchTimeoutRef.current) {
+                                    clearTimeout(searchTimeoutRef.current)
+                                }
+                                setSearchParams(searchInput || null, !filters.searchCaseSensitive, filters.searchRegex)
+                            }}
+                            title="Match case"
+                        >
+                            Aa
+                        </button>
+                        <button
+                            className={`${styles.searchToggleBtn} ${filters.searchRegex ? styles.searchToggleBtnActive : ''}`}
+                            onClick={() => {
+                                // Cancel any pending debounce and send all params together
+                                if (searchTimeoutRef.current) {
+                                    clearTimeout(searchTimeoutRef.current)
+                                }
+                                setSearchParams(searchInput || null, filters.searchCaseSensitive, !filters.searchRegex)
+                            }}
+                            title="Use regex"
+                        >
+                            .*
+                        </button>
+                    </div>
                 </div>
                 <div className={styles.empty}>
                     <span>No log entries match your filters</span>
@@ -216,14 +274,48 @@ export default function LogList() {
     return (
         <div className={styles.container}>
             <div className={styles.toolbar}>
-                <input
-                    type="text"
-                    className={styles.searchInput}
-                    placeholder="Search..."
-                    value={searchInput}
-                    onChange={e => setSearchInput(e.target.value)}
-                />
-                <span className={styles.searchHint}>⌘K</span>
+                <div className={styles.searchContainer}>
+                    <input
+                        type="text"
+                        className={styles.searchInput}
+                        placeholder="Search..."
+                        value={searchInput}
+                        onChange={e => handleSearchChange(e.target.value)}
+                    />
+                    {searchInput && (
+                        <button className={styles.clearSearchBtn} onClick={handleClearSearch} title="Clear search">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 strokeWidth="2">
+                                <line x1="18" y1="6" x2="6" y2="18"/>
+                                <line x1="6" y1="6" x2="18" y2="18"/>
+                            </svg>
+                        </button>
+                    )}
+                    <button
+                        className={`${styles.searchToggleBtn} ${filters.searchCaseSensitive ? styles.searchToggleBtnActive : ''}`}
+                        onClick={() => {
+                            if (searchTimeoutRef.current) {
+                                clearTimeout(searchTimeoutRef.current)
+                            }
+                            setSearchParams(searchInput || null, !filters.searchCaseSensitive, filters.searchRegex)
+                        }}
+                        title="Match case"
+                    >
+                        Aa
+                    </button>
+                    <button
+                        className={`${styles.searchToggleBtn} ${filters.searchRegex ? styles.searchToggleBtnActive : ''}`}
+                        onClick={() => {
+                            if (searchTimeoutRef.current) {
+                                clearTimeout(searchTimeoutRef.current)
+                            }
+                            setSearchParams(searchInput || null, filters.searchCaseSensitive, !filters.searchRegex)
+                        }}
+                        title="Use regex"
+                    >
+                        .*
+                    </button>
+                </div>
                 <div className={styles.toolbarRight}>
                     {pinnedEntryIds.length > 0 && (
                         <div className={`${styles.infoBadge} ${styles.infoBadgeBookmarks}`}>

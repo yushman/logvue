@@ -18,10 +18,26 @@
     flex-shrink: 0;
 }
 
+.searchHint {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    padding: 2px 6px;
+    background: var(--color-bg-panel);
+    border-radius: var(--radius-checkbox);
+}
+
+.searchContainer {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    position: relative;
+}
+
 .searchInput {
     flex: 1;
     max-width: 300px;
     padding: 6px 10px;
+    padding-right: 28px;
     background: var(--color-bg-input);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-button);
@@ -29,21 +45,53 @@
     font-size: var(--font-size-sm);
 }
 
-.searchInput::placeholder {
+.clearSearchBtn {
+    position: absolute;
+    right: 72px;
+    background: none;
+    border: none;
+    cursor: pointer;
     color: var(--color-text-muted);
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: color 0.15s, background-color 0.15s;
 }
 
-.searchInput:focus {
-    border-color: var(--color-primary);
-    outline: none;
-}
-
-.searchHint {
-    font-size: var(--font-size-xs);
-    color: var(--color-text-muted);
-    padding: 2px 6px;
+.clearSearchBtn:hover {
+    color: var(--color-text-primary);
     background: var(--color-bg-panel);
-    border-radius: var(--radius-checkbox);
+}
+
+.searchToggleBtn {
+    padding: 4px 8px;
+    background: var(--color-bg-panel);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-button);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+    font-family: monospace;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.searchToggleBtn:hover {
+    border-color: var(--color-primary);
+    color: var(--color-text-primary);
+}
+
+.searchToggleBtnActive {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+}
+
+.searchToggleBtnActive:hover {
+    background: #7ab8fb;
+    border-color: #7ab8fb;
+    color: white;
 }
 
 .toolbarRight {

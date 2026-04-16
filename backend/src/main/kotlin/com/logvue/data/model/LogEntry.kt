@@ -35,6 +35,8 @@ data class FilterRequest(
     val tagRegex: Boolean = false,
     val contentFilter: String = "",
     val searchQuery: String? = null,
+    val searchCaseSensitive: Boolean = false,
+    val searchRegex: Boolean = false,
     val timeFrom: Long? = null,
     val timeTo: Long? = null,
     val hiddenTags: String = "",

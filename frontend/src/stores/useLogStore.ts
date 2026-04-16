@@ -20,6 +20,8 @@ interface FilterState {
     tagRegex: boolean
     contentFilter: string
     searchQuery: string | null
+    searchCaseSensitive: boolean
+    searchRegex: boolean
     timeFrom: number | null
     timeTo: number | null
 }
@@ -63,6 +65,9 @@ interface LogActions {
     setTagPattern: (pattern: string, regex?: boolean) => void
     setContentFilter: (filter: string) => void
     setSearchQuery: (query: string | null) => void
+    setSearchCaseSensitive: (sensitive: boolean) => void
+    setSearchRegex: (regex: boolean) => void
+    setSearchParams: (query: string | null, caseSensitive: boolean, regex: boolean) => void
     setTimeFrom: (time: number | null) => void
     setTimeTo: (time: number | null) => void
     clearSearch: () => void
@@ -98,6 +103,8 @@ const getDefaultFilters = (): FilterState => ({
     tagRegex: false,
     contentFilter: '',
     searchQuery: null,
+    searchCaseSensitive: false,
+    searchRegex: false,
     timeFrom: null,
     timeTo: null
 })
@@ -156,6 +163,8 @@ export const useLogStore = create<LogStore>()(
                             tagRegex: false,
                             contentFilter: '',
                             searchQuery: null,
+                            searchCaseSensitive: false,
+                            searchRegex: false,
                             timeFrom,
                             timeTo
                         }
@@ -191,6 +200,8 @@ export const useLogStore = create<LogStore>()(
                         tagRegex: filters.tagRegex,
                         contentFilter: filters.contentFilter,
                         searchQuery: filters.searchQuery,
+                        searchCaseSensitive: filters.searchCaseSensitive,
+                        searchRegex: filters.searchRegex,
                         timeFrom: filters.timeFrom,
                         timeTo: filters.timeTo,
                         hiddenTags: get().hiddenTags.join('|'),
@@ -277,6 +288,28 @@ export const useLogStore = create<LogStore>()(
                 get().fetchFilteredLogs()
             },
 
+            setSearchCaseSensitive: (sensitive: boolean) => {
+                set(state => ({filters: {...state.filters, searchCaseSensitive: sensitive}}))
+                get().fetchFilteredLogs()
+            },
+
+            setSearchRegex: (regex: boolean) => {
+                set(state => ({filters: {...state.filters, searchRegex: regex}}))
+                get().fetchFilteredLogs()
+            },
+
+            setSearchParams: (query: string | null, caseSensitive: boolean, regex: boolean) => {
+                set(state => ({
+                    filters: {
+                        ...state.filters,
+                        searchQuery: query,
+                        searchCaseSensitive: caseSensitive,
+                        searchRegex: regex
+                    }
+                }))
+                get().fetchFilteredLogs()
+            },
+
             setTimeFrom: (time: number | null) => {
                 set(state => ({filters: {...state.filters, timeFrom: time}}))
                 get().fetchFilteredLogs()
@@ -289,7 +322,12 @@ export const useLogStore = create<LogStore>()(
 
             clearSearch: () => {
                 set(state => ({
-                    filters: {...state.filters, searchQuery: null},
+                    filters: {
+                        ...state.filters,
+                        searchQuery: null,
+                        searchCaseSensitive: false,
+                        searchRegex: false
+                    },
                     searchHighlightRanges: {}
                 }))
                 get().fetchFilteredLogs()

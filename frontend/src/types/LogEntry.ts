@@ -43,6 +43,8 @@ export interface FilterRequest {
     tagRegex: boolean
     contentFilter: string
     searchQuery: string | null
+    searchCaseSensitive: boolean
+    searchRegex: boolean
     timeFrom: number | null
     timeTo: number | null
     hiddenTags: string
