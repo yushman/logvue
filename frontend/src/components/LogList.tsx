@@ -46,7 +46,24 @@ function renderHighlightedMessage(message: string, ranges: [number, number][]): 
 }
 
 function getLevelClass(level: string): string {
-    return `level${level.charAt(0) + level.slice(1).toLowerCase()}`
+    const levelLower = level.charAt(0) + level.slice(1).toLowerCase()
+    return styles[`level${levelLower}`] || ''
+}
+
+function getLevelBgColor(level: string): string {
+    const colors: Record<string, string> = {
+        VERBOSE: '#999999',
+        DEBUG: '#377eb8',
+        INFO: '#4daf4a',
+        WARN: '#ff7f00',
+        ERROR: '#e41a1c',
+        ASSERT: '#984ea3'
+    }
+    return colors[level] || '#999999'
+}
+
+function getLevelTextColor(level: string): string {
+    return level === 'VERBOSE' ? '#000000' : '#ffffff'
 }
 
 export default function LogList() {
@@ -169,6 +186,7 @@ export default function LogList() {
                 <div className={`${styles.headerCell} ${styles.dateCol}`}>Date</div>
                 <div className={`${styles.headerCell} ${styles.timeCol}`}>Time</div>
                 <div className={`${styles.headerCell} ${styles.tagCol}`}>Tag</div>
+                <div className={`${styles.headerCell} ${styles.levelCol}`}>L</div>
                 <div className={`${styles.headerCell} ${styles.messageCol}`}>Message</div>
             </div>
 
@@ -236,9 +254,20 @@ export default function LogList() {
                                         {item.header.tag || '---'}
                                     </span>
                                 </div>
+                                <div className={`${styles.cell} ${styles.levelCell}`}>
+                                    <span
+                                        className={styles.levelText}
+                                        style={{
+                                            backgroundColor: getLevelBgColor(item.header.logLevel),
+                                            color: getLevelTextColor(item.header.logLevel)
+                                        }}
+                                    >
+                                        {item.header.logLevel.charAt(0)}
+                                    </span>
+                                </div>
                                 <div className={`${styles.cell} ${styles.messageCell}`}>
                                     <span
-                                        className={styles.messageText}
+                                        className={`${styles.messageText} ${getLevelClass(item.header.logLevel)}`}
                                         dangerouslySetInnerHTML={{
                                             __html: renderHighlightedMessage(item.message, ranges)
                                         }}
