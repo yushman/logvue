@@ -210,8 +210,15 @@
 .tagCheckbox {
     width: 14px;
     height: 14px;
-    accent-color: var(--color-primary);
     cursor: pointer;
+    opacity: 0.2;
+    accent-color: #3F3F46;
+}
+
+.tagCheckbox:checked {
+    opacity: 1;
+    background: #3F3F46;
+    border-color: #3F3F46;
 }
 
 .tagName {
@@ -226,6 +233,10 @@
 .tagCount {
     font-size: var(--font-size-xs);
     color: var(--color-text-muted);
+    background: #3F3F46;
+    border-radius: 10px;
+    padding: 1px 6px;
+    line-height: 1.4;
 }
 
 .tagCountWrapper {
