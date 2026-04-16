@@ -198,17 +198,30 @@ export const useLogStore = create<LogStore>()(
                         total: result.total,
                         entriesCount: result.entries.length
                     }))
-                    const {pinnedEntryIds, pinnedEntriesCache} = get()
+                    const {pinnedEntryIds, pinnedEntriesCache, allTags: existingTags} = get()
                     const pinnedIdsSet = new Set(pinnedEntryIds)
                     const existingCacheIds = new Set(pinnedEntriesCache.map(e => e.id))
                     const newCacheEntries = result.entries.filter(e => pinnedIdsSet.has(e.id) && !existingCacheIds.has(e.id))
+
+                    // Update allTags: preserve existing tags unless no filters active
+                    let updatedAllTags = existingTags
+                    if (existingTags.length === 0 && result.tagCounts) {
+                        // First load - populate from tagCounts
+                        updatedAllTags = result.tagCounts
+                    } else if (!filters.tagPattern && result.tagCounts && result.tagCounts.length > 0) {
+                        // No tag filter active and we have tagCounts - update
+                        // This happens when user clears the tag filter
+                        updatedAllTags = result.tagCounts
+                    }
+                    // If tag filter is active, keep existing allTags to preserve full tag list
+
                     set({
                         entries: append ? [...get().entries, ...result.entries] : result.entries,
                         total: result.total,
                         searchHighlightRanges: result.searchHighlightRanges || {},
                         pinnedEntriesCache: [...pinnedEntriesCache, ...newCacheEntries],
                         levelCounts: result.levelCounts || {},
-                        allTags: result.tagCounts || []
+                        allTags: updatedAllTags
                     })
                 } catch (e) {
                     console.error('[LogStore] Filter error:', e)

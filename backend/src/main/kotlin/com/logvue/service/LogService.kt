@@ -45,13 +45,18 @@ class LogService(private val parser: LogParser) {
             filtered = filtered.filter { it.header.logLevel in request.levels }
         }
 
-        // Filter by tag pattern
+        // Filter by tag pattern (pipe-separated list means OR)
         if (request.tagPattern.isNotEmpty()) {
+            val tags = request.tagPattern.split("|").filter { it.isNotEmpty() }
             filtered = if (request.tagRegex) {
                 val regex = Regex(request.tagPattern, RegexOption.IGNORE_CASE)
                 filtered.filter { it.header.tag?.let { tag -> regex.containsMatchIn(tag) } == true }
             } else {
-                filtered.filter { it.header.tag?.contains(request.tagPattern, ignoreCase = true) == true }
+                filtered.filter { entry ->
+                    entry.header.tag?.let { tag ->
+                        tags.any { tagPattern -> tag.contains(tagPattern, ignoreCase = true) }
+                    } == true
+                }
             }
         }
 
