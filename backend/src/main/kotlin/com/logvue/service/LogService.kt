@@ -118,12 +118,13 @@ class LogService(private val parser: LogParser) {
         val buckets = if (rangeMs <= 0) {
             emptyList()
         } else {
-            val bucketSizeMs = rangeMs / numBuckets
+            val bucketSizeMsDouble = rangeMs.toDouble() / numBuckets
             val bucketMap = mutableMapOf<Int, MutableList<LogEntry>>()
 
             for (entry in entries) {
                 if (entry.timestamp < rangeStart || entry.timestamp > rangeEnd) continue
-                val bucketIndex = ((entry.timestamp - rangeStart) / bucketSizeMs).toInt().coerceIn(0, numBuckets - 1)
+                val bucketIndex =
+                    ((entry.timestamp - rangeStart) / bucketSizeMsDouble).toInt().coerceIn(0, numBuckets - 1)
                 bucketMap.getOrPut(bucketIndex) { mutableListOf() }.add(entry)
             }
 
@@ -135,7 +136,7 @@ class LogService(private val parser: LogParser) {
                     tagCounts[tag] = tagCounts.getOrDefault(tag, 0) + 1
                 }
                 TimelineBucket(
-                    timestamp = rangeStart + (i * bucketSizeMs),
+                    timestamp = rangeStart + (i * bucketSizeMsDouble).toLong(),
                     count = bucketEntries.size,
                     tags = tagCounts
                 )

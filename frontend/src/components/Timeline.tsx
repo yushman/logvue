@@ -17,7 +17,7 @@ const MARGIN = {top: 10, right: 10, bottom: 40, left: 10}
 const CHART_HEIGHT = 120
 const MAX_SEGMENTS = 5
 const GRAY = '#999999'
-const NUM_BUCKETS = 20
+const NUM_BUCKETS = 30
 
 interface BucketSegment {
     tag: string
@@ -134,8 +134,12 @@ export default function Timeline({
 
     const handleBarClick = useCallback(
         (bucketIndex: number) => {
+            if (buckets[bucketIndex]?.count === 0) return
             const bucketStart = Math.floor(timeRange.startTimestamp + bucketIndex * bucketSizeMs)
-            const bucketEnd = Math.floor(bucketStart + bucketSizeMs)
+            const isLastBucket = bucketIndex === buckets.length - 1
+            const bucketEnd = isLastBucket
+                ? timeRange.endTimestamp
+                : Math.floor(bucketStart + bucketSizeMs)
             onRangeSelect({from: bucketStart, to: bucketEnd})
         },
         [timeRange, bucketSizeMs, onRangeSelect]
