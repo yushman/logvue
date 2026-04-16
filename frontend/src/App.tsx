@@ -1,9 +1,10 @@
 import {useEffect, useState} from 'react'
-import FileDropzone from './components/FileDropzone'
-import LogLevelFilter from './components/LogLevelFilter'
-import FilterBar from './components/FilterBar'
+import Header from './components/Header'
 import Timeline from './components/Timeline'
+import Sidebar from './components/Sidebar'
 import LogList from './components/LogList'
+import MessageInspector from './components/MessageInspector'
+import FileDropzone from './components/FileDropzone'
 import ErrorDisplay from './components/ErrorDisplay'
 import {useLogStore} from './stores/useLogStore'
 import styles from './App.module.css'
@@ -11,15 +12,13 @@ import styles from './App.module.css'
 export default function App() {
     const {
         metadata,
-        entries,
-        error,
         buckets,
         tagColors,
         selectedRange,
         uploadLog,
         setSelectedRange,
         fetchFilteredLogs,
-        clearLog
+        error
     } = useLogStore()
 
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -33,7 +32,7 @@ export default function App() {
     }, [error])
 
     useEffect(() => {
-        if (metadata && entries.length === 0) {
+        if (metadata) {
             fetchFilteredLogs()
         }
     }, [metadata])
@@ -61,40 +60,36 @@ export default function App() {
                     onDismiss={dismissError}
                 />
             )}
-            <main className={styles.main}>
-                {showDropzone && (
-                    <FileDropzone onFileSelected={handleFileSelected}/>
-                )}
 
-                {!showDropzone && metadata && (
+            <Header/>
+
+            {showDropzone && (
+                <main className={styles.main}>
+                    <FileDropzone onFileSelected={handleFileSelected}/>
+                </main>
+            )}
+
+            {!showDropzone && metadata && (
+                <>
                     <div className={styles.logView}>
-                        <div className={styles.logHeader}>
-                            <div className={styles.logMeta}>
-                                <span className={styles.appName}>LogVue</span>
-                                <span className={styles.separator}>|</span>
-                                <span className={styles.deviceName}>{metadata.deviceName}</span>
-                            </div>
-                            <button className={styles.clearBtn} onClick={clearLog}>
-                                Load New File
-                            </button>
+                        {metadata.timeRange && (
+                            <Timeline
+                                buckets={buckets}
+                                tagColors={tagColors}
+                                timeRange={metadata.timeRange}
+                                selectedRange={selectedRange}
+                                onRangeSelect={handleRangeSelect}
+                            />
+                        )}
+
+                        <div className={styles.contentArea}>
+                            <Sidebar/>
+                            <LogList/>
+                            <MessageInspector/>
                         </div>
-                        <LogLevelFilter/>
-                        <FilterBar/>
-                        <div className={styles.timelineContainer}>
-                            {metadata.timeRange && (
-                                <Timeline
-                                    buckets={buckets}
-                                    tagColors={tagColors}
-                                    timeRange={metadata.timeRange}
-                                    selectedRange={selectedRange}
-                                    onRangeSelect={handleRangeSelect}
-                                />
-                            )}
-                        </div>
-                        <LogList/>
                     </div>
-                )}
-            </main>
+                </>
+            )}
         </div>
     )
 }

@@ -29,7 +29,14 @@ class LogService(private val parser: LogParser) {
     fun getLogFile(fileId: String): ParseResult? = logFiles[fileId]
 
     fun filterLogs(request: FilterRequest): FilterResponse {
-        val parseResult = logFiles[request.fileId] ?: return FilterResponse(emptyList(), 0, false)
+        val parseResult = logFiles[request.fileId] ?: return FilterResponse(
+            entries = emptyList(),
+            total = 0,
+            hasMore = false,
+            searchHighlightRanges = emptyMap(),
+            levelCounts = emptyMap(),
+            tagCounts = emptyList()
+        )
 
         var filtered = parseResult.entries.asSequence()
 
@@ -61,11 +68,23 @@ class LogService(private val parser: LogParser) {
             filtered = filtered.filter { it.timestamp <= to }
         }
 
-        val total = filtered.count()
-        val entries = filtered
+        // Compute counts from all filtered entries (before pagination)
+        val filteredList = filtered.toList()
+        val total = filteredList.size
+
+        val levelCounts = mutableMapOf<String, Int>()
+        val tagCounts = mutableMapOf<String, Int>()
+        filteredList.forEach { entry ->
+            levelCounts[entry.header.logLevel] = levelCounts.getOrDefault(entry.header.logLevel, 0) + 1
+            val tag = entry.header.tag ?: ""
+            if (tag.isNotEmpty()) {
+                tagCounts[tag] = tagCounts.getOrDefault(tag, 0) + 1
+            }
+        }
+
+        val entries = filteredList
             .drop(request.offset)
             .take(request.limit)
-            .toList()
 
         // Compute highlight ranges for searchQuery on current page entries
         val searchHighlightRanges = mutableMapOf<String, List<List<Int>>>()
@@ -87,10 +106,12 @@ class LogService(private val parser: LogParser) {
         }
 
         return FilterResponse(
-            entries = entries,
+            entries = entries.toList(),
             total = total,
             hasMore = request.offset + request.limit < total,
-            searchHighlightRanges = searchHighlightRanges
+            searchHighlightRanges = searchHighlightRanges,
+            levelCounts = levelCounts,
+            tagCounts = tagCounts.map { TagCount(it.key, it.value) }.sortedByDescending { it.count }
         )
     }
 

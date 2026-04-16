@@ -3,6 +3,7 @@ import {scaleBand} from '@visx/scale'
 import {Group} from '@visx/group'
 import {AxisBottom} from '@visx/axis'
 import type {TimelineBucket} from '../types/LogEntry'
+import {useLogStore} from '../stores/useLogStore'
 import styles from './Timeline.module.css'
 
 interface TimelineProps {
@@ -20,7 +21,7 @@ const GRAY = '#999999'
 const NUM_BUCKETS = 30
 
 interface BucketSegment {
-    tag: string
+    tag: stringLogs
     count: number
     color: string
     y0: number
@@ -110,11 +111,17 @@ export default function Timeline({
                                      selectedRange,
                                      onRangeSelect
                                  }: TimelineProps) {
-    const containerRef = useRef<HTMLDivElement>(null)
+    const {timelineCollapsed, toggleTimelineCollapsed} = useLogStore()
+    const collapsed = timelineCollapsed
+    const chartRef = useRef<HTMLDivElement>(null)
     const [containerWidth, setContainerWidth] = useState(800)
 
     const chartWidth = containerWidth - MARGIN.left - MARGIN.right
     const chartHeight = CHART_HEIGHT - MARGIN.top - MARGIN.bottom
+
+    const toggleCollapsed = useCallback(() => {
+        toggleTimelineCollapsed()
+    }, [toggleTimelineCollapsed])
 
     const bucketSizeMs = useMemo(() => {
         const total = timeRange.endTimestamp - timeRange.startTimestamp
@@ -158,87 +165,101 @@ export default function Timeline({
     const tickStep = Math.max(1, Math.floor(buckets.length / tickCount))
 
     useEffect(() => {
-        if (!containerRef.current) return
+        if (!chartRef.current) return
         const observer = new ResizeObserver(entries => {
             for (const entry of entries) {
                 setContainerWidth(entry.contentRect.width)
             }
         })
-        observer.observe(containerRef.current)
-        setContainerWidth(containerRef.current.clientWidth)
+        observer.observe(chartRef.current)
+        setContainerWidth(chartRef.current.clientWidth)
         return () => observer.disconnect()
     }, [])
 
     return (
-        <div className={styles.container} ref={containerRef}>
-            <svg width={containerWidth} height={CHART_HEIGHT}>
-                <AxisBottom
-                    top={CHART_HEIGHT - MARGIN.bottom}
-                    left={MARGIN.left}
-                    scale={scaleBand({
-                        domain: buckets.map((_, i) => i.toString()),
-                        range: [0, chartWidth],
-                        padding: 0.1
-                    })}
-                    stroke="#ccc"
-                    tickFormat={(i) => {
-                        const idx = parseInt(i)
-                        if (idx < 0 || idx >= buckets.length) return ''
-                        if (idx % tickStep !== 0) return ''
-                        return formatTime(buckets[idx].timestamp, bucketSizeMs < 10_000)
-                    }}
-                    tickLength={4}
-                    tickStroke="#ccc"
-                    tickLabelProps={() => ({
-                        fill: '#666',
-                        fontSize: 10,
-                        textAnchor: 'middle'
-                    })}
-                />
-
-                {/* Selected range overlay */}
-                {selectedOverlay && (
-                    <rect
-                        x={selectedOverlay.x}
-                        y={MARGIN.top}
-                        width={selectedOverlay.width}
-                        height={chartHeight}
-                        fill="rgba(74, 144, 217, 0.2)"
-                        stroke="#4a90d9"
-                        strokeWidth={1}
+        <div className={styles.container}>
+            <div className={styles.header} onClick={toggleCollapsed}>
+                <span className={styles.title}>
+                    <svg
+                        className={`${styles.toggleIcon} ${collapsed ? styles.toggleIconCollapsed : ''}`}
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                    Timeline
+                </span>
+            </div>
+            <div className={`${styles.chartWrapper} ${collapsed ? styles.chartWrapperCollapsed : ''}`} ref={chartRef}>
+                <svg width={containerWidth} height={CHART_HEIGHT}>
+                    <AxisBottom
+                        top={CHART_HEIGHT - MARGIN.bottom}
+                        left={MARGIN.left}
+                        scale={scaleBand({
+                            domain: buckets.map((_, i) => i.toString()),
+                            range: [0, chartWidth],
+                            padding: 0.1
+                        })}
+                        stroke="#ccc"
+                        tickFormat={(i) => {
+                            const idx = parseInt(i)
+                            if (idx < 0 || idx >= buckets.length) return ''
+                            if (idx % tickStep !== 0) return ''
+                            return formatTime(buckets[idx].timestamp, bucketSizeMs < 10_000)
+                        }}
+                        tickLength={4}
+                        tickStroke="#ccc"
+                        tickLabelProps={() => ({
+                            fill: '#666',
+                            fontSize: 10,
+                            textAnchor: 'middle'
+                        })}
                     />
-                )}
 
-                <Group top={MARGIN.top} left={MARGIN.left}>
-                    {segments.map((seg, i) => {
-                        const barX = (i * chartWidth) / buckets.length
-                        const barWidth = Math.max(2, chartWidth / buckets.length - 1)
+                    {selectedOverlay && (
+                        <rect
+                            x={selectedOverlay.x}
+                            y={MARGIN.top}
+                            width={selectedOverlay.width}
+                            height={chartHeight}
+                            fill="rgba(74, 144, 217, 0.2)"
+                            stroke="#4a90d9"
+                            strokeWidth={1}
+                        />
+                    )}
 
-                        return (
-                            <Group
-                                key={seg.bucket.timestamp}
-                                left={barX}
-                                onClick={() => handleBarClick(i)}
-                                style={{cursor: 'pointer'}}
-                            >
-                                {seg.segments.map((s, si) => (
-                                    <rect
-                                        key={`${s.tag}-${si}`}
-                                        x={0}
-                                        y={chartHeight - s.y0 - s.height}
-                                        width={barWidth}
-                                        height={s.height}
-                                        fill={s.color}
-                                        opacity={0.85}
-                                    >
-                                        <title>{formatTooltip(seg.bucket, seg.segments)}</title>
-                                    </rect>
-                                ))}
-                            </Group>
-                        )
-                    })}
-                </Group>
-            </svg>
+                    <Group top={MARGIN.top} left={MARGIN.left}>
+                        {segments.map((seg, i) => {
+                            const barX = (i * chartWidth) / buckets.length
+                            const barWidth = Math.max(2, chartWidth / buckets.length - 1)
+
+                            return (
+                                <Group
+                                    key={seg.bucket.timestamp}
+                                    left={barX}
+                                    onClick={() => handleBarClick(i)}
+                                    style={{cursor: 'pointer'}}
+                                >
+                                    {seg.segments.map((s, si) => (
+                                        <rect
+                                            key={`${s.tag}-${si}`}
+                                            x={0}
+                                            y={chartHeight - s.y0 - s.height}
+                                            width={barWidth}
+                                            height={s.height}
+                                            fill={s.color}
+                                            opacity={0.85}
+                                        >
+                                            <title>{formatTooltip(seg.bucket, seg.segments)}</title>
+                                        </rect>
+                                    ))}
+                                </Group>
+                            )
+                        })}
+                    </Group>
+                </svg>
+            </div>
         </div>
     )
 }

@@ -46,5 +46,13 @@ data class FilterResponse(
     val entries: List<LogEntry>,
     val total: Int,
     val hasMore: Boolean,
-    val searchHighlightRanges: Map<String, List<List<Int>>> = emptyMap()
+    val searchHighlightRanges: Map<String, List<List<Int>>> = emptyMap(),
+    val levelCounts: Map<String, Int> = emptyMap(),
+    val tagCounts: List<TagCount> = emptyList()
+)
+
+@Serializable
+data class TagCount(
+    val tag: String,
+    val count: Int
 )

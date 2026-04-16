@@ -24,6 +24,11 @@ interface FilterState {
     timeTo: number | null
 }
 
+interface PaginationState {
+    page: number
+    pageSize: number
+}
+
 interface LogState {
     metadata: LogMetadata | null
     fileTimeRange: { startTimestamp: number; endTimestamp: number } | null
@@ -40,6 +45,13 @@ interface LogState {
     buckets: TimelineBucket[]
     tagColors: Record<string, string>
     selectedRange: { from: number; to: number } | null
+    pagination: PaginationState
+    selectedEntryId: number | null
+    sidebarCollapsed: { time: boolean; level: boolean; tags: boolean }
+    levelCounts: Record<string, number>
+    allTags: Array<{ tag: string; count: number }>
+    timelineCollapsed: boolean
+    maxLogsReached: boolean
 }
 
 interface LogActions {
@@ -62,9 +74,18 @@ interface LogActions {
     loadTimeline: (numBuckets?: number, timeFrom?: number, timeTo?: number) => Promise<void>
     setSelectedRange: (range: { from: number; to: number } | null) => void
     resetTimeRange: () => void
+    setPage: (page: number) => void
+    setPageSize: (size: number) => void
+    setSelectedEntryId: (id: number | null) => void
+    toggleSidebarCollapsed: (section: 'time' | 'level' | 'tags') => void
+    setLevelCounts: (counts: Record<string, number>) => void
+    setAllTags: (tags: Array<{ tag: string; count: number }>) => void
+    toggleTimelineCollapsed: () => void
+    setMaxLogsReached: (reached: boolean) => void
 }
 
 const DEFAULT_LEVELS = ['VERBOSE', 'DEBUG', 'INFO', 'WARN', 'ERROR', 'ASSERT']
+const MAX_LOGS = 1000
 
 type LogStore = LogState & LogActions
 
@@ -96,6 +117,13 @@ export const useLogStore = create<LogStore>()(
             buckets: [],
             tagColors: {},
             selectedRange: null,
+            pagination: {page: 1, pageSize: 200},
+            selectedEntryId: null,
+            sidebarCollapsed: {time: false, level: false, tags: false},
+            levelCounts: {},
+            allTags: [],
+            timelineCollapsed: false,
+            maxLogsReached: false,
 
             uploadLog: async (file: File) => {
                 console.log('[LogStore] uploadLog called with file:', file.name)
@@ -141,16 +169,17 @@ export const useLogStore = create<LogStore>()(
             },
 
             fetchFilteredLogs: async (append = false) => {
-                const {fileId, filters} = get()
-                console.log('[LogStore] fetchFilteredLogs called, fileId:', fileId, 'filters:', JSON.stringify(filters))
+                const {fileId, filters, pagination} = get()
+                console.log('[LogStore] fetchFilteredLogs called, fileId:', fileId, 'filters:', JSON.stringify(filters), 'append:', append)
                 if (!fileId) {
                     console.log('[LogStore] fetchFilteredLogs early return - no fileId')
                     return
                 }
 
-                set({isLoading: true, error: null})
+                set({isLoading: true, error: null, maxLogsReached: false})
 
                 try {
+                    const offset = append ? get().entries.length : (pagination.page - 1) * pagination.pageSize
                     const request: FilterRequest = {
                         fileId,
                         levels: filters.levels,
@@ -160,8 +189,8 @@ export const useLogStore = create<LogStore>()(
                         searchQuery: filters.searchQuery,
                         timeFrom: filters.timeFrom,
                         timeTo: filters.timeTo,
-                        offset: append ? get().entries.length : 0,
-                        limit: 200
+                        offset,
+                        limit: pagination.pageSize
                     }
                     console.log('[LogStore] Sending filter request:', JSON.stringify(request))
                     const result = await filterLogs(request)
@@ -177,7 +206,9 @@ export const useLogStore = create<LogStore>()(
                         entries: append ? [...get().entries, ...result.entries] : result.entries,
                         total: result.total,
                         searchHighlightRanges: result.searchHighlightRanges || {},
-                        pinnedEntriesCache: [...pinnedEntriesCache, ...newCacheEntries]
+                        pinnedEntriesCache: [...pinnedEntriesCache, ...newCacheEntries],
+                        levelCounts: result.levelCounts || {},
+                        allTags: result.tagCounts || []
                     })
                 } catch (e) {
                     console.error('[LogStore] Filter error:', e)
@@ -190,6 +221,10 @@ export const useLogStore = create<LogStore>()(
             loadMore: () => {
                 const {isLoading, entries, total} = get()
                 if (!isLoading && entries.length < total) {
+                    if (entries.length >= MAX_LOGS) {
+                        set({maxLogsReached: true})
+                        return
+                    }
                     get().fetchFilteredLogs(true)
                 }
             },
@@ -298,7 +333,14 @@ export const useLogStore = create<LogStore>()(
                     filters: getDefaultFilters(),
                     buckets: [],
                     tagColors: {},
-                    selectedRange: null
+                    selectedRange: null,
+                    pagination: {page: 1, pageSize: 200},
+                    selectedEntryId: null,
+                    sidebarCollapsed: {time: false, level: false, tags: false},
+                    levelCounts: {},
+                    allTags: [],
+                    timelineCollapsed: false,
+                    maxLogsReached: false
                 })
             },
 
@@ -349,6 +391,45 @@ export const useLogStore = create<LogStore>()(
                 })
                 get().fetchFilteredLogs()
                 get().loadTimeline(20, from, to)
+            },
+
+            setPage: (page: number) => {
+                set(state => ({pagination: {...state.pagination, page}}))
+                get().fetchFilteredLogs()
+            },
+
+            setPageSize: (size: number) => {
+                set(state => ({pagination: {...state.pagination, pageSize: size, page: 1}}))
+                get().fetchFilteredLogs()
+            },
+
+            setSelectedEntryId: (id: number | null) => {
+                set({selectedEntryId: id})
+            },
+
+            toggleSidebarCollapsed: (section: 'time' | 'level' | 'tags') => {
+                set(state => ({
+                    sidebarCollapsed: {
+                        ...state.sidebarCollapsed,
+                        [section]: !state.sidebarCollapsed[section]
+                    }
+                }))
+            },
+
+            setLevelCounts: (counts: Record<string, number>) => {
+                set({levelCounts: counts})
+            },
+
+            setAllTags: (tags: Array<{ tag: string; count: number }>) => {
+                set({allTags: tags})
+            },
+
+            toggleTimelineCollapsed: () => {
+                set(state => ({timelineCollapsed: !state.timelineCollapsed}))
+            },
+
+            setMaxLogsReached: (reached: boolean) => {
+                set({maxLogsReached: reached})
             }
         }),
         {

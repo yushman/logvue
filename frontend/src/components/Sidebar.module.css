@@ -1,0 +1,233 @@
+.sidebar {
+    width: 240px;
+    min-width: 240px;
+    background: var(--color-bg-panel);
+    border-right: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.section {
+    border-bottom: 1px solid var(--color-border);
+}
+
+.sectionHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.15s;
+}
+
+.sectionHeader:hover {
+    background: var(--color-bg-selected);
+}
+
+.sectionTitle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--color-text-primary);
+}
+
+.sectionCount {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+}
+
+.collapseIcon {
+    width: 16px;
+    height: 16px;
+    color: var(--color-text-muted);
+    transition: transform 0.2s;
+}
+
+.collapseIconCollapsed {
+    transform: rotate(-90deg);
+}
+
+.sectionContent {
+    padding: 8px 12px;
+    padding-top: 0;
+}
+
+.sectionContentCollapsed {
+    display: none;
+}
+
+/* Time filter */
+.timeFilters {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.timeRow {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.timeRow .timeInput {
+    flex: 1;
+}
+
+.resetBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: var(--color-bg-input);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-button);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+.resetBtn:hover {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.resetBtn svg {
+    width: 14px;
+    height: 14px;
+}
+
+.timeInput {
+    width: 100%;
+    padding: 6px 8px;
+    font-size: var(--font-size-xs);
+    background: var(--color-bg-input);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-button);
+    color: var(--color-text-primary);
+}
+
+.timeInput:focus {
+    border-color: var(--color-primary);
+    outline: none;
+}
+
+/* Level filter */
+.levelList {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.levelItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    cursor: pointer;
+}
+
+.levelCheckbox {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--color-primary);
+    cursor: pointer;
+}
+
+.levelLabel {
+    flex: 1;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+}
+
+.levelCount {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+}
+
+.levelDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+/* Tags filter */
+.tagFilterInput {
+    width: 100%;
+    padding: 6px 8px;
+    margin-bottom: 8px;
+    font-size: var(--font-size-xs);
+    background: var(--color-bg-input);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-button);
+    color: var(--color-text-primary);
+}
+
+.tagFilterInput::placeholder {
+    color: var(--color-text-muted);
+}
+
+.tagFilterInput:focus {
+    border-color: var(--color-primary);
+    outline: none;
+}
+
+.tagList {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.tagItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 6px;
+    border-radius: var(--radius-checkbox);
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.tagItem:hover {
+    background: var(--color-bg-selected);
+}
+
+.tagItemSticky {
+    background: var(--color-bg-selected);
+}
+
+.tagCheckbox {
+    width: 14px;
+    height: 14px;
+    accent-color: var(--color-primary);
+    cursor: pointer;
+}
+
+.tagName {
+    flex: 1;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tagCount {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+}
+
+.noTags {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    font-style: italic;
+    padding: 4px 0;
+}

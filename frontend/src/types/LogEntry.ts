@@ -49,11 +49,18 @@ export interface FilterRequest {
     limit: number
 }
 
+export interface TagCount {
+    tag: string
+    count: number
+}
+
 export interface FilterResponse {
     entries: LogEntry[]
     total: number
     hasMore: boolean
     searchHighlightRanges?: Record<string, [number, number][]>
+    levelCounts?: Record<string, number>
+    tagCounts?: TagCount[]
 }
 
 export interface TimelineBucket {

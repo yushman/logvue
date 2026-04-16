@@ -1,0 +1,78 @@
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 48px;
+    padding: 0 16px;
+    background: var(--color-bg-panel);
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+.left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.logoIcon {
+    width: 24px;
+    height: 24px;
+    color: var(--color-primary);
+}
+
+.appName {
+    font-size: var(--font-size-md);
+    font-weight: 600;
+    color: var(--color-primary);
+}
+
+.version {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+}
+
+.center {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+    font-weight: 500;
+}
+
+.right {
+    display: flex;
+    align-items: center;
+}
+
+.loadBtn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--color-bg-input);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-button);
+    color: var(--color-text-primary);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    transition: border-color 0.15s, background-color 0.15s;
+}
+
+.loadBtn:hover {
+    border-color: var(--color-primary);
+    background: var(--color-bg-panel);
+}
+
+.loadBtnIcon {
+    width: 16px;
+    height: 16px;
+}
+
+.hiddenInput {
+    display: none;
+}

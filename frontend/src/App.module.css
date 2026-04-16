@@ -3,6 +3,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    background: var(--color-bg-app);
 }
 
 .main {
@@ -21,58 +22,18 @@
     min-height: 0;
 }
 
-.logHeader {
+.contentArea {
+    flex: 1;
     display: flex;
-    justify-content: space-between;
+    overflow: hidden;
+    min-height: 0;
+    height: 0;
+    flex-direction: row;
+}
+
+.dropzone {
+    flex: 1;
+    display: flex;
     align-items: center;
-    padding: 0.5rem 1rem;
-    background: #f5f5f5;
-    border-bottom: 1px solid #ddd;
-    flex-shrink: 0;
-}
-
-.logMeta {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-}
-
-.appName {
-    font-weight: 700;
-    color: #333;
-    font-size: 1.1rem;
-}
-
-.separator {
-    color: #ccc;
-    font-size: 0.9rem;
-}
-
-.deviceName {
-    font-weight: 500;
-    color: #666;
-    font-size: 0.85rem;
-}
-
-.clearBtn {
-    padding: 0.3rem 0.7rem;
-    background: #4a90d9;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.75rem;
-    transition: background-color 0.15s;
-}
-
-.clearBtn:hover {
-    background: #3a7bc8;
-}
-
-.timelineContainer {
-    display: flex;
-    flex-direction: column;
-    border-bottom: 1px solid #ddd;
-    background: #fff;
-    flex-shrink: 0;
+    justify-content: center;
 }
