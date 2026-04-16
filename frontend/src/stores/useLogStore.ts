@@ -52,6 +52,7 @@ interface LogState {
     allTags: Array<{ tag: string; count: number }>
     timelineCollapsed: boolean
     maxLogsReached: boolean
+    hiddenTags: string[]
 }
 
 interface LogActions {
@@ -82,6 +83,8 @@ interface LogActions {
     setAllTags: (tags: Array<{ tag: string; count: number }>) => void
     toggleTimelineCollapsed: () => void
     setMaxLogsReached: (reached: boolean) => void
+    toggleHiddenTag: (tag: string) => void
+    unhideAllTags: () => void
 }
 
 const DEFAULT_LEVELS = ['VERBOSE', 'DEBUG', 'INFO', 'WARN', 'ERROR', 'ASSERT']
@@ -124,6 +127,7 @@ export const useLogStore = create<LogStore>()(
             allTags: [],
             timelineCollapsed: false,
             maxLogsReached: false,
+            hiddenTags: [],
 
             uploadLog: async (file: File) => {
                 console.log('[LogStore] uploadLog called with file:', file.name)
@@ -189,6 +193,7 @@ export const useLogStore = create<LogStore>()(
                         searchQuery: filters.searchQuery,
                         timeFrom: filters.timeFrom,
                         timeTo: filters.timeTo,
+                        hiddenTags: get().hiddenTags.join('|'),
                         offset,
                         limit: pagination.pageSize
                     }
@@ -214,6 +219,16 @@ export const useLogStore = create<LogStore>()(
                         updatedAllTags = result.tagCounts
                     }
                     // If tag filter is active, keep existing allTags to preserve full tag list
+
+                    // Preserve hidden tags in allTags so they stay visible in sidebar with last count
+                    const {hiddenTags: currentHiddenTags} = get()
+                    if (currentHiddenTags.length > 0) {
+                        const missingHidden = currentHiddenTags.filter(h => !updatedAllTags.some(t => t.tag === h))
+                        if (missingHidden.length > 0) {
+                            const hiddenTagEntries = missingHidden.map(h => ({tag: h, count: 0}))
+                            updatedAllTags = [...updatedAllTags, ...hiddenTagEntries]
+                        }
+                    }
 
                     set({
                         entries: append ? [...get().entries, ...result.entries] : result.entries,
@@ -353,7 +368,8 @@ export const useLogStore = create<LogStore>()(
                     levelCounts: {},
                     allTags: [],
                     timelineCollapsed: false,
-                    maxLogsReached: false
+                    maxLogsReached: false,
+                    hiddenTags: []
                 })
             },
 
@@ -443,6 +459,26 @@ export const useLogStore = create<LogStore>()(
 
             setMaxLogsReached: (reached: boolean) => {
                 set({maxLogsReached: reached})
+            },
+
+            toggleHiddenTag: (tag: string) => {
+                const {hiddenTags, allTags} = get()
+                const isHidden = hiddenTags.includes(tag)
+                const newHiddenTags = isHidden
+                    ? hiddenTags.filter(t => t !== tag)
+                    : [...hiddenTags, tag]
+                // Also preserve in allTags so it stays visible
+                let updatedAllTags = allTags
+                if (!isHidden && !allTags.some(t => t.tag === tag)) {
+                    updatedAllTags = [...allTags, {tag, count: 0}]
+                }
+                set({hiddenTags: newHiddenTags, allTags: updatedAllTags})
+                get().fetchFilteredLogs()
+            },
+
+            unhideAllTags: () => {
+                set({hiddenTags: []})
+                get().fetchFilteredLogs()
             }
         }),
         {

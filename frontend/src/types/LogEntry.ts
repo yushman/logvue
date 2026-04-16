@@ -45,6 +45,7 @@ export interface FilterRequest {
     searchQuery: string | null
     timeFrom: number | null
     timeTo: number | null
+    hiddenTags: string
     offset: number
     limit: number
 }

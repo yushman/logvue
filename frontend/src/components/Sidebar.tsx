@@ -17,7 +17,9 @@ export default function Sidebar() {
         allTags,
         setTagPattern,
         fileTimeRange,
-        resetTimeRange
+        resetTimeRange,
+        hiddenTags,
+        toggleHiddenTag
     } = useLogStore()
 
     const [tagFilter, setTagFilter] = useState('')
@@ -35,6 +37,10 @@ export default function Sidebar() {
     }
 
     const handleTagToggle = (tag: string, checked: boolean) => {
+        if (isTagHidden(tag)) {
+            toggleHiddenTag(tag)
+            return
+        }
         const currentTags = filters.tagPattern ? filters.tagPattern.split('|').filter(Boolean) : []
         const newTags = checked
             ? [...currentTags, tag]
@@ -46,20 +52,29 @@ export default function Sidebar() {
         return filters.tagPattern.split('|').includes(tag)
     }
 
+    const isTagHidden = (tag: string) => {
+        return hiddenTags.includes(tag)
+    }
+
     const sortedTags = [...allTags].sort((a, b) => {
         const aChecked = isTagChecked(a.tag)
         const bChecked = isTagChecked(b.tag)
+        const aHidden = isTagHidden(a.tag)
+        const bHidden = isTagHidden(b.tag)
         if (aChecked && !bChecked) return -1
         if (!aChecked && bChecked) return 1
+        if (aHidden && !bHidden) return 1
+        if (!aHidden && bHidden) return -1
         return b.count - a.count
     })
 
     // Filter only applies to unchecked tags when filter text is present
     const showFiltered = tagFilter.length > 0
-    const checkedTags = sortedTags.filter(t => isTagChecked(t.tag))
+    const checkedTags = sortedTags.filter(t => isTagChecked(t.tag) && !isTagHidden(t.tag))
     const uncheckedTags = showFiltered
-        ? sortedTags.filter(t => !isTagChecked(t.tag) && t.tag.toLowerCase().includes(tagFilter.toLowerCase()))
-        : sortedTags.filter(t => !isTagChecked(t.tag))
+        ? sortedTags.filter(t => !isTagChecked(t.tag) && !isTagHidden(t.tag) && t.tag.toLowerCase().includes(tagFilter.toLowerCase()))
+        : sortedTags.filter(t => !isTagChecked(t.tag) && !isTagHidden(t.tag))
+    const hiddenTagsList = sortedTags.filter(t => isTagHidden(t.tag))
 
     const handleTimeFromChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value
@@ -223,7 +238,50 @@ export default function Sidebar() {
                                         onChange={e => handleTagToggle(tag, e.target.checked)}
                                     />
                                     <span className={styles.tagName}>{tag}</span>
-                                    <span className={styles.tagCount}>{count}</span>
+                                    <span className={styles.tagCountWrapper}>
+                                        <button
+                                            className={styles.tagEyeBtn}
+                                            onClick={e => {
+                                                e.stopPropagation();
+                                                toggleHiddenTag(tag)
+                                            }}
+                                            title="Hide tag"
+                                        >
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <path
+                                                    d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/>
+                                                <line x1="1" y1="1" x2="23" y2="23"/>
+                                            </svg>
+                                        </button>
+                                        <span className={styles.tagCount}>{count}</span>
+                                    </span>
+                                </label>
+                            ))}
+                            {hiddenTagsList.map(({tag, count}) => (
+                                <label key={tag} className={`${styles.tagItem} ${styles.tagItemHidden}`}>
+                                    <input
+                                        type="checkbox"
+                                        className={styles.tagCheckbox}
+                                        checked={false}
+                                        onChange={e => handleTagToggle(tag, e.target.checked)}
+                                    />
+                                    <span className={styles.tagName}>{tag}</span>
+                                    <span className={styles.tagCountWrapper}>
+                                        <button
+                                            className={`${styles.tagEyeBtn} ${styles.tagEyeBtnHidden}`}
+                                            onClick={e => {
+                                                e.stopPropagation();
+                                                toggleHiddenTag(tag)
+                                            }}
+                                            title="Show tag"
+                                        >
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                                <circle cx="12" cy="12" r="3"/>
+                                            </svg>
+                                        </button>
+                                        <span className={styles.tagCount}>{count}</span>
+                                    </span>
                                 </label>
                             ))}
                         </div>

@@ -37,6 +37,7 @@ data class FilterRequest(
     val searchQuery: String? = null,
     val timeFrom: Long? = null,
     val timeTo: Long? = null,
+    val hiddenTags: String = "",
     val offset: Int = 0,
     val limit: Int = 200
 )

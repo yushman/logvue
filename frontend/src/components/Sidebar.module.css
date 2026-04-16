@@ -228,6 +228,53 @@
     color: var(--color-text-muted);
 }
 
+.tagCountWrapper {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.tagEyeBtn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    background: transparent;
+    border: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    border-radius: 4px;
+    transition: color 0.15s, background-color 0.15s;
+}
+
+.tagItem:hover .tagEyeBtn {
+    display: flex;
+}
+
+.tagEyeBtn:hover {
+    color: var(--color-primary);
+    background: var(--color-bg-selected);
+}
+
+.tagEyeBtn svg {
+    width: 14px;
+    height: 14px;
+}
+
+.tagEyeBtnHidden {
+    color: var(--color-text-muted);
+    opacity: 0.6;
+}
+
+.tagItemHidden .tagName {
+    opacity: 0.5;
+}
+
+.tagItemHidden .tagCount {
+    opacity: 0.5;
+}
+
 .noTags {
     font-size: var(--font-size-xs);
     color: var(--color-text-muted);

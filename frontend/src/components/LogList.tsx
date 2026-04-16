@@ -112,11 +112,10 @@ export default function LogList() {
 
     const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
         const {scrollTop, scrollHeight, clientHeight} = e.currentTarget
-        if (hasMore && !loadMoreRef.current && scrollTop + clientHeight >= scrollHeight - 100) {
+        if (hasMore && scrollTop + clientHeight >= scrollHeight - 100) {
             if (maxLogsReached) {
                 return
             }
-            loadMoreRef.current = true
             loadMore()
         }
     }, [hasMore, maxLogsReached, loadMore])

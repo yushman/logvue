@@ -60,6 +60,15 @@ class LogService(private val parser: LogParser) {
             }
         }
 
+        // Filter out hidden tags (exact match, case-insensitive)
+        if (request.hiddenTags.isNotEmpty()) {
+            val hiddenTagList = request.hiddenTags.split("|").filter { it.isNotEmpty() }
+            filtered = filtered.filter { entry ->
+                val tag = entry.header.tag ?: return@filter false
+                hiddenTagList.none { hidden -> tag.equals(hidden, ignoreCase = true) }
+            }
+        }
+
         // Filter by content
         if (request.contentFilter.isNotEmpty()) {
             filtered = filtered.filter { it.message.contains(request.contentFilter, ignoreCase = true) }
