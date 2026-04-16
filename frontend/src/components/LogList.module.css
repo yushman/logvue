@@ -176,7 +176,7 @@
     background: transparent;
     border: none;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 22px;
     color: var(--color-text-muted);
     padding: 2px 4px;
     border-radius: var(--radius-checkbox);
@@ -189,16 +189,16 @@
 }
 
 .starBtn:hover {
-    color: #ffeb3b;
+    color: mediumpurple;
     transform: scale(1.1);
 }
 
 .starBtnActive {
-    color: #ffeb3b;
+    color: mediumpurple;
 }
 
 .starBtnActive:hover {
-    color: #ffc107;
+    color: mediumpurple;
 }
 
 .dateText, .timeText {
