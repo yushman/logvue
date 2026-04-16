@@ -145,7 +145,7 @@ export default function MessageInspector() {
                     className={`${styles.actionBtn} ${isPinned ? styles.actionBtnActive : ''}`}
                     onClick={handleStar}
                     title={isPinned ? 'Unstar' : 'Star'}
-                    style={isPinned ? {color: '#ffeb3b'} : {}}
+                    style={isPinned ? {color: '#9370DB'} : {}}
                 >
                     <svg className={styles.actionBtnIcon} viewBox="0 0 24 24" fill={isPinned ? 'currentColor' : 'none'}
                          stroke="currentColor">

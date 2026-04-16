@@ -35,7 +35,7 @@
 
 .searchInput {
     flex: 1;
-    max-width: 300px;
+    min-width: 600px;
     padding: 6px 10px;
     padding-right: 28px;
     background: var(--color-bg-input);
@@ -89,8 +89,8 @@
 }
 
 .searchToggleBtnActive:hover {
-    background: #7ab8fb;
-    border-color: #7ab8fb;
+    background: var(--color-primary);
+    border-color: var(--color-primary);
     color: white;
 }
 
@@ -358,7 +358,7 @@
 }
 
 .clearFiltersBtn:hover {
-    background: #7ab8fb;
+    background: var(--color-primary);
 }
 
 .endMessage {

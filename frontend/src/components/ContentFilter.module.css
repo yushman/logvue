@@ -31,12 +31,12 @@
 }
 
 .searchBtn {
-    background: #4a90d9;
+    background: var(--color-primary);
     color: white;
 }
 
 .searchBtn:hover {
-    background: #3a7bc8;
+    background: mediumpurple;
 }
 
 .clearBtn {
