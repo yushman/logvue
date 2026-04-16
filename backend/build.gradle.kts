@@ -4,6 +4,7 @@ plugins {
     kotlin("jvm") version "1.9.22"
     id("io.ktor.plugin") version "2.3.7"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.22"
+    id("com.gradleup.shadow") version "8.3.0"
 }
 
 group = "com.logvue"
@@ -16,6 +17,7 @@ application {
 kotlin {
     jvmToolchain(21)
 }
+
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {
