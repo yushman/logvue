@@ -303,7 +303,7 @@ export const useLogStore = create<LogStore>()(
                     if (entryToPin) {
                         set({
                             pinnedEntryIds: [...pinnedEntryIds, entryId],
-                            pinnedEntriesCache: [...pinnedEntriesCache, entryToPin]
+                            pinnedEntriesCache: [...pinnedEntriesCache.filter(e => e.id !== entryId), entryToPin]
                         })
                     } else {
                         set({pinnedEntryIds: [...pinnedEntryIds, entryId]})
@@ -312,14 +312,17 @@ export const useLogStore = create<LogStore>()(
                             getEntry(fileId, entryId).then(entry => {
                                 if (entry) {
                                     set(state => ({
-                                        pinnedEntriesCache: [...state.pinnedEntriesCache, entry]
+                                        pinnedEntriesCache: [...state.pinnedEntriesCache.filter(e => e.id !== entryId), entry]
                                     }))
                                 }
                             })
                         }
                     }
                 } else {
-                    set({pinnedEntryIds: pinnedEntryIds.filter(id => id !== entryId)})
+                    set({
+                        pinnedEntryIds: pinnedEntryIds.filter(id => id !== entryId),
+                        pinnedEntriesCache: pinnedEntriesCache.filter(e => e.id !== entryId)
+                    })
                 }
             },
 
