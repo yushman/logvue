@@ -1,11 +1,45 @@
 .inspector {
     width: 300px;
-    min-width: 300px;
+    min-width: 200px;
+    max-width: 600px;
     background: var(--color-bg-panel);
     border-left: 1px solid var(--color-border);
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.resizeHandle {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+    cursor: col-resize;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.resizeHandle::after {
+    content: '';
+    width: 2px;
+    height: 32px;
+    background: var(--color-border);
+    border-radius: 1px;
+    transition: background-color 0.15s;
+}
+
+.resizeHandle:hover::after,
+.resizeHandleActive::after {
+    background: var(--color-primary);
+}
+
+.resizeHandleActive::after {
+    background: var(--color-primary);
 }
 
 .toolbar {

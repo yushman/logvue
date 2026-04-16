@@ -1,7 +1,10 @@
-import {useCallback, useMemo} from 'react'
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 import {useLogStore} from '../stores/useLogStore'
 import {getTagColor} from '../utils/tagColors'
 import styles from './MessageInspector.module.css'
+
+const MIN_WIDTH = 200
+const MAX_WIDTH = 600
 
 function formatDateTime(timestamp: number): string {
     const date = new Date(timestamp)
@@ -31,6 +34,41 @@ export default function MessageInspector() {
         setSelectedEntryId,
         searchHighlightRanges
     } = useLogStore()
+
+    const [width, setWidth] = useState(300)
+    const [isResizing, setIsResizing] = useState(false)
+    const panelRef = useRef<HTMLAsideElement>(null)
+    const startXRef = useRef(0)
+    const startWidthRef = useRef(300)
+
+    useEffect(() => {
+        if (!isResizing) return
+
+        const handleMouseMove = (e: MouseEvent) => {
+            const deltaX = startXRef.current - e.clientX
+            const newWidth = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, startWidthRef.current + deltaX))
+            setWidth(newWidth)
+        }
+
+        const handleMouseUp = () => {
+            setIsResizing(false)
+        }
+
+        document.addEventListener('mousemove', handleMouseMove)
+        document.addEventListener('mouseup', handleMouseUp)
+        return () => {
+            document.removeEventListener('mousemove', handleMouseMove)
+            document.removeEventListener('mouseup', handleMouseUp)
+        }
+    }, [isResizing])
+
+    const handleResizeStart = useCallback((e: React.MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+        startXRef.current = e.clientX
+        startWidthRef.current = panelRef.current?.offsetWidth ?? 300
+        setIsResizing(true)
+    }, [])
 
     const selectedEntry = useMemo(() => {
         return entries.find(e => e.id === selectedEntryId) || null
@@ -69,7 +107,11 @@ export default function MessageInspector() {
 
     if (!selectedEntry) {
         return (
-            <aside className={styles.inspector}>
+            <aside className={styles.inspector} ref={panelRef} style={{width}}>
+                <div
+                    className={`${styles.resizeHandle} ${isResizing ? styles.resizeHandleActive : ''}`}
+                    onMouseDown={handleResizeStart}
+                />
                 <div className={styles.empty}>
                     Select a log entry to inspect
                 </div>
@@ -93,7 +135,11 @@ export default function MessageInspector() {
         })()
 
     return (
-        <aside className={styles.inspector}>
+        <aside className={styles.inspector} ref={panelRef} style={{width}}>
+            <div
+                className={`${styles.resizeHandle} ${isResizing ? styles.resizeHandleActive : ''}`}
+                onMouseDown={handleResizeStart}
+            />
             <div className={styles.toolbar}>
                 <button
                     className={`${styles.actionBtn} ${isPinned ? styles.actionBtnActive : ''}`}
