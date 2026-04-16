@@ -72,6 +72,7 @@ export default function LogList() {
         total,
         isLoading,
         pinnedEntryIds,
+        pinnedEntriesCache,
         searchHighlightRanges,
         togglePin,
         resetFilters,
@@ -80,16 +81,61 @@ export default function LogList() {
         selectedEntryId,
         pagination,
         maxLogsReached,
-        loadMore
+        loadMore,
+        filters
     } = useLogStore()
 
     const hasMore = entries.length < total
     const parentRef = useRef<HTMLDivElement>(null)
+    const pinnedRef = useRef<HTMLDivElement>(null)
     const [viewportHeight, setViewportHeight] = useState(0)
     const [searchInput, setSearchInput] = useState('')
     const loadMoreRef = useRef(false)
 
     const pinnedIdsSet = useMemo(() => new Set(pinnedEntryIds), [pinnedEntryIds])
+
+    const filteredPinnedEntries = useMemo(() => {
+        if (pinnedEntriesCache.length === 0) return []
+
+        return pinnedEntriesCache.filter(entry => {
+            if (!pinnedIdsSet.has(entry.id)) {
+                return false
+            }
+            if (filters.levels.length > 0 && !filters.levels.includes(entry.header.logLevel)) {
+                return false
+            }
+            if (filters.timeFrom !== null && entry.timestamp < filters.timeFrom) {
+                return false
+            }
+            if (filters.timeTo !== null && entry.timestamp > filters.timeTo) {
+                return false
+            }
+            if (filters.tagPattern) {
+                const tag = entry.header.tag || ''
+                if (filters.tagRegex) {
+                    try {
+                        const regex = new RegExp(filters.tagPattern)
+                        if (!regex.test(tag)) return false
+                    } catch {
+                        return false
+                    }
+                } else {
+                    if (!tag.includes(filters.tagPattern)) return false
+                }
+            }
+            if (filters.contentFilter) {
+                if (!entry.message.toLowerCase().includes(filters.contentFilter.toLowerCase())) {
+                    return false
+                }
+            }
+            if (filters.searchQuery) {
+                if (!entry.message.toLowerCase().includes(filters.searchQuery.toLowerCase())) {
+                    return false
+                }
+            }
+            return true
+        })
+    }, [pinnedEntriesCache, filters, pinnedIdsSet])
 
     const virtualizer = useVirtualizer({
         count: entries.length,
@@ -178,16 +224,114 @@ export default function LogList() {
                     onChange={e => setSearchInput(e.target.value)}
                 />
                 <span className={styles.searchHint}>⌘K</span>
+                <div className={styles.toolbarRight}>
+                    {pinnedEntryIds.length > 0 && (
+                        <div className={`${styles.infoBadge} ${styles.infoBadgeBookmarks}`}>
+                            <span>★</span>
+                            <span className={styles.infoBadgeCount}>{filteredPinnedEntries.length}</span>
+                        </div>
+                    )}
+                    <div className={styles.infoBadge}>
+                        <span className={styles.infoBadgeCount}>{entries.length.toLocaleString()}</span>
+                        <span>/</span>
+                        <span>{total.toLocaleString()}</span>
+                    </div>
+                </div>
             </div>
 
-            <div className={styles.headerRow}>
-                <div className={`${styles.headerCell} ${styles.starCol}`}>★</div>
-                <div className={`${styles.headerCell} ${styles.dateCol}`}>Date</div>
-                <div className={`${styles.headerCell} ${styles.timeCol}`}>Time</div>
-                <div className={`${styles.headerCell} ${styles.tagCol}`}>Tag</div>
-                <div className={`${styles.headerCell} ${styles.levelCol}`}>L</div>
-                <div className={`${styles.headerCell} ${styles.messageCol}`}>Message</div>
-            </div>
+            {filteredPinnedEntries.length > 0 && (
+                <div
+                    ref={pinnedRef}
+                    className={styles.pinnedContainer}
+                >
+                    <div className={styles.headerRow}>
+                        <div className={`${styles.headerCell} ${styles.starCol}`}>★</div>
+                        <div className={`${styles.headerCell} ${styles.dateCol}`}>Date</div>
+                        <div className={`${styles.headerCell} ${styles.timeCol}`}>Time</div>
+                        <div className={`${styles.headerCell} ${styles.tagCol}`}>Tag</div>
+                        <div className={`${styles.headerCell} ${styles.levelCol}`}>L</div>
+                        <div className={`${styles.headerCell} ${styles.messageCol}`}>Message</div>
+                    </div>
+                    {filteredPinnedEntries.map(item => {
+                        const ranges = searchHighlightRanges[String(item.id)] || []
+                        const isSelected = item.id === selectedEntryId
+
+                        return (
+                            <div
+                                key={item.id}
+                                className={`${styles.pinnedRow} ${isSelected ? styles.rowSelected : ''}`}
+                                onClick={() => {
+                                    handleRowClick(item.id)
+                                    const entryIndex = entries.findIndex(e => e.id === item.id)
+                                    if (entryIndex !== -1) {
+                                        const virtualItems = virtualizer.getVirtualItems()
+                                        const isVisible = virtualItems.some(
+                                            vItem => vItem.index === entryIndex
+                                        )
+                                        if (!isVisible) {
+                                            virtualizer.scrollToIndex(entryIndex, {align: 'auto'})
+                                        }
+                                    }
+                                }}
+                            >
+                                <div className={`${styles.cell} ${styles.starCell}`}>
+                                    <button
+                                        className={`${styles.starBtn} ${styles.starBtnActive}`}
+                                        onClick={e => handleStarClick(e, item.id)}
+                                        title="Unstar"
+                                    >
+                                        ★
+                                    </button>
+                                </div>
+                                <div className={`${styles.cell} ${styles.dateCell}`}>
+                                    <span className={styles.dateText}>{formatDate(item.timestamp)}</span>
+                                </div>
+                                <div className={`${styles.cell} ${styles.timeCell}`}>
+                                    <span className={styles.timeText}>{formatTime(item.timestamp)}</span>
+                                </div>
+                                <div
+                                    className={`${styles.cell} ${styles.tagCell}`}
+                                    style={{color: getTagColor(item.header.tag || '')}}
+                                >
+                                    <span className={styles.tagText}>
+                                        {item.header.tag || '---'}
+                                    </span>
+                                </div>
+                                <div className={`${styles.cell} ${styles.levelCell}`}>
+                                    <span
+                                        className={styles.levelText}
+                                        style={{
+                                            backgroundColor: getLevelBgColor(item.header.logLevel),
+                                            color: getLevelTextColor(item.header.logLevel)
+                                        }}
+                                    >
+                                        {item.header.logLevel.charAt(0)}
+                                    </span>
+                                </div>
+                                <div className={`${styles.cell} ${styles.messageCell}`}>
+                                    <span
+                                        className={`${styles.messageText} ${getLevelClass(item.header.logLevel)}`}
+                                        dangerouslySetInnerHTML={{
+                                            __html: renderHighlightedMessage(item.message, ranges)
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        )
+                    })}
+                </div>
+            )}
+
+            {filteredPinnedEntries.length === 0 && (
+                <div className={styles.headerRow}>
+                    <div className={`${styles.headerCell} ${styles.starCol}`}>★</div>
+                    <div className={`${styles.headerCell} ${styles.dateCol}`}>Date</div>
+                    <div className={`${styles.headerCell} ${styles.timeCol}`}>Time</div>
+                    <div className={`${styles.headerCell} ${styles.tagCol}`}>Tag</div>
+                    <div className={`${styles.headerCell} ${styles.levelCol}`}>L</div>
+                    <div className={`${styles.headerCell} ${styles.messageCol}`}>Message</div>
+                </div>
+            )}
 
             <div
                 ref={parentRef}
@@ -226,7 +370,7 @@ export default function LogList() {
                                     transform: `translateY(${virtualRow.start}px)`,
                                     display: 'flex',
                                     alignItems: 'center',
-                                    width: '100%'
+                                    width: 'max-content'
                                 }}
                                 onClick={() => handleRowClick(item.id)}
                             >

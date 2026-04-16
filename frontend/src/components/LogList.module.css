@@ -46,6 +46,38 @@
     border-radius: var(--radius-checkbox);
 }
 
+.toolbarRight {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+}
+
+.infoBadge {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    background: var(--color-bg-panel);
+    border-radius: 12px;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+}
+
+.infoBadgeCount {
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.infoBadgeBookmarks {
+    background: mediumpurple;
+    color: white;
+}
+
+.infoBadgeBookmarks .infoBadgeCount {
+    color: white;
+}
+
 .headerRow {
     display: flex;
     align-items: center;
@@ -112,7 +144,6 @@
     font-size: var(--font-size-xs);
     border-bottom: 1px solid var(--color-border);
     width: max-content;
-    min-width: 100%;
     box-sizing: border-box;
     cursor: pointer;
     transition: background-color 0.1s;
@@ -221,6 +252,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    max-width: 400px;
 }
 
 .messageText :global(mark) {
@@ -292,4 +324,60 @@
     color: var(--color-text-muted);
     font-size: var(--font-size-sm);
     text-align: center;
+}
+
+.pinnedContainer {
+    flex-shrink: 0;
+    max-height: 200px;
+    overflow-y: auto;
+    overflow-x: auto;
+    background: var(--color-bg-panel);
+    border-bottom: 2px solid var(--color-border);
+}
+
+.pinnedHeader {
+    display: flex;
+    align-items: center;
+    padding: 6px 8px;
+    background: var(--color-bg-table-header);
+    border-bottom: 1px solid var(--color-border);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--color-text-muted);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.pinnedHeaderText {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pinnedCount {
+    background: mediumpurple;
+    color: white;
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-size: 10px;
+}
+
+.pinnedRow {
+    display: flex;
+    align-items: center;
+    height: var(--row-height);
+    padding: 0 8px;
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    border-bottom: 1px solid var(--color-border);
+    width: max-content;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: background-color 0.1s;
+    background: var(--color-bg-panel);
+}
+
+.pinnedRow:hover {
+    background: var(--color-bg-selected);
 }
