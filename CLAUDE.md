@@ -59,21 +59,23 @@ frontend/src/
   main.tsx                    # React app entry point
   App.tsx                     # Root component (FileDropzone → LogView)
   stores/
-    useLogStore.ts            # Zustand store (filter state, file metadata, timeline)
+    useLogStore.ts            # Zustand store (filter, pagination, pinned entries, sidebar state)
   api/
     client.ts                 # Backend API client (fetch-based)
+  types/
+    LogEntry.ts               # TypeScript interfaces mirroring backend models
   components/
+    Header.tsx                # App header
     FileDropzone.tsx          # File upload drag & drop
     LogList.tsx               # Virtual scrolling log list (@tanstack/react-virtual)
     LogLevelFilter.tsx        # VERBOSE/DEBUG/INFO/WARN/ERROR/ASSERT checkboxes
-    FilterBar.tsx             # Contains all filter controls
-    TextFilter.tsx            # Tag filter with regex toggle
-    ContentFilter.tsx          # Content filter + search with highlights
-    TimeRangePicker.tsx       # From/to datetime pickers
+    Sidebar.tsx                # Collapsible sidebar with time/level/tag filters
+    MessageInspector.tsx       # Selected log entry detail view
     Timeline.tsx              # Timeline visualization with bucket selection
-    ResolutionSelector.tsx     # sec/min/hour resolution picker
     ErrorDisplay.tsx           # Error/warning/info message display
 ```
+
+Note: Uses CSS Modules (`.module.css`) for styling.
 
 ## Key API Endpoints
 
@@ -93,8 +95,9 @@ frontend/src/
 - `LogEntry`: id, header (LogHeader), message, timestamp (epoch millis)
 - `LogHeader`: logLevel, pid, tid, applicationId, processName, tag, timestamp (seconds + nanos)
 - `FilterRequest`: fileId, levels[], tagPattern, tagRegex, contentFilter, searchQuery, timeFrom, timeTo, offset, limit
-- `FilterResponse`: entries[], total, hasMore, searchHighlightRanges (computed lazily for current page)
+- `FilterResponse`: entries[], total, hasMore, searchHighlightRanges, levelCounts, tagCounts
 - `TimelineRequest`: fileId, resolution (sec/min/hour)
+- `TimelineResponse`: timeRange, buckets[], tagColors
 
 ### Frontend (TypeScript)
 
@@ -114,5 +117,8 @@ Mirrors backend models in `frontend/src/types/LogEntry.ts`. Zustand store persis
 - Highlight ranges are computed lazily on the backend only for the current page when searchQuery is non-empty
 - Virtual scrolling in LogList handles 100k+ entries efficiently via @tanstack/react-virtual
 - Tag colors are deterministic (hash tag name → palette)
-- Frontend uses Zustand (not Pinia) for state management
+- Frontend uses Zustand (not Pinia) for state management with persist middleware (localStorage)
 - File uploads are multipart form-data, not JSON body
+- Frontend uses CSS Modules (`.module.css`) for component styling
+- Pinned entries feature allows bookmarking specific log entries for quick access
+- Client-side log limit of 1000 entries enforced via `maxLogsReached` flag in store

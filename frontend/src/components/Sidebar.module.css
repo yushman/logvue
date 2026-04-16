@@ -125,36 +125,39 @@
     gap: 4px;
 }
 
-.levelItem {
+.levelButton {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 4px 0;
+    justify-content: space-between;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 2px solid var(--level-color);
+    color: var(--level-color);
+    background: transparent;
     cursor: pointer;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    font-family: monospace;
+    text-transform: uppercase;
+    transition: all 0.15s ease;
 }
 
-.levelCheckbox {
-    width: 16px;
-    height: 16px;
-    accent-color: var(--color-primary);
-    cursor: pointer;
+.levelButton:hover {
+    transform: translateY(-1px);
+}
+
+.levelButton.checked {
+    background: var(--level-color);
+    color: #ffffff;
 }
 
 .levelLabel {
-    flex: 1;
-    font-size: var(--font-size-sm);
-    color: var(--color-text-primary);
+    font-size: var(--font-size-xs);
 }
 
 .levelCount {
     font-size: var(--font-size-xs);
-    color: var(--color-text-muted);
-}
-
-.levelDot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
+    opacity: 0.7;
 }
 
 /* Tags filter */

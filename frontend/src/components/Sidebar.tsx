@@ -151,22 +151,24 @@ export default function Sidebar() {
                 <div
                     className={`${styles.sectionContent} ${sidebarCollapsed.level ? styles.sectionContentCollapsed : ''}`}>
                     <div className={styles.levelList}>
-                        {LEVELS.map(level => (
-                            <label key={level} className={styles.levelItem}>
-                                <input
-                                    type="checkbox"
-                                    className={styles.levelCheckbox}
-                                    checked={filters.levels.includes(level)}
-                                    onChange={e => handleLevelChange(level, e.target.checked)}
-                                />
-                                <span
-                                    className={styles.levelDot}
-                                    style={{backgroundColor: getLogLevelColor(level)}}
-                                />
-                                <span className={styles.levelLabel}>{level}</span>
-                                <span className={styles.levelCount}>{levelCounts[level] || 0}</span>
-                            </label>
-                        ))}
+                        {LEVELS.map(level => {
+                            const isChecked = filters.levels.includes(level)
+                            const color = getLogLevelColor(level)
+                            return (
+                                <div
+                                    key={level}
+                                    className={`${styles.levelButton} ${isChecked ? styles.checked : ''}`}
+                                    style={{
+                                        '--level-color': color,
+                                        '--level-color-bg': color + '33'
+                                    } as React.CSSProperties}
+                                    onClick={() => handleLevelChange(level, !isChecked)}
+                                >
+                                    <span className={styles.levelLabel}>{level}</span>
+                                    <span className={styles.levelCount}>{levelCounts[level] || 0}</span>
+                                </div>
+                            )
+                        })}
                     </div>
                 </div>
             </div>

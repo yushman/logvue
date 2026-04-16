@@ -19,17 +19,13 @@ export default function LogLevelFilter() {
     return (
         <div className={styles.container}>
             {LEVELS.map(level => (
-                <label
+                <div
                     key={level}
-                    className={`${styles.checkbox} ${styles[level.toLowerCase()]}`}
+                    className={`${styles.levelButton} ${styles[level.toLowerCase()]} ${isChecked(level) ? styles.checked : ''}`}
+                    onClick={() => toggleLevel(level)}
                 >
-                    <input
-                        type="checkbox"
-                        checked={isChecked(level)}
-                        onChange={() => toggleLevel(level)}
-                    />
-                    <span className={styles.label}>{level}</span>
-                </label>
+                    {level}
+                </div>
             ))}
             <span className={styles.badge}>
                 {total} / {metadata?.logCount} entries
