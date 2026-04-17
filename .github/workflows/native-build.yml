@@ -24,7 +24,6 @@ jobs:
       - name: Setup GraalVM
         uses: graalvm/setup-graalvm@v1
         with:
-          version: '24.0.0'
           java-version: '21'
 
       - name: Setup Node.js
