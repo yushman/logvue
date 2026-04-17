@@ -21,7 +21,6 @@ kotlin {
 }
 
 graalvmNative {
-    targetWithOS("")
 }
 
 tasks.withType<KotlinCompile> {
