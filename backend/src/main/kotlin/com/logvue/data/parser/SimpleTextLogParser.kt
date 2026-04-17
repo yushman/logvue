@@ -86,8 +86,11 @@ class SimpleTextLogParser : LogParser {
         // Try format: DD-MM HH:MM:SS L Tag Message
         patternSimple.matchEntire(line)?.let { match ->
             return Tuple5(
-                match.groupValues[1], match.groupValues[2], match.groupValues[3],
-                match.groupValues[4], match.groupValues[5]
+                match.groupValues[1],
+                match.groupValues[2],
+                match.groupValues[3],
+                match.groupValues[4],
+                match.groupValues[5]
             )
         }
 
@@ -95,8 +98,11 @@ class SimpleTextLogParser : LogParser {
         patternMonthName.matchEntire(line)?.let { match ->
             // For this format, groups are: date, time, tag, level, message
             return Tuple5(
-                match.groupValues[1], match.groupValues[2], match.groupValues[4],
-                match.groupValues[3], match.groupValues[5]
+                match.groupValues[1],
+                match.groupValues[2],
+                match.groupValues[4],
+                match.groupValues[3],
+                match.groupValues[5]
             )
         }
 

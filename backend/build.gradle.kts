@@ -5,6 +5,7 @@ plugins {
     id("io.ktor.plugin") version "2.3.7"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.22"
     id("com.gradleup.shadow") version "8.3.0"
+    id("org.jlleitschuh.gradle.ktlint") version "11.5.1"
 }
 
 group = "com.logvue"
@@ -18,7 +19,6 @@ kotlin {
     jvmToolchain(21)
 }
 
-
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         jvmTarget = "21"
@@ -29,6 +29,11 @@ tasks.test {
     useJUnitPlatform()
 }
 
+apply(plugin = "org.jlleitschuh.gradle.ktlint")
+
+tasks.register("lint") {
+    dependsOn("kotlinFormat", "ktlintCheck")
+}
 
 dependencies {
     // Ktor server

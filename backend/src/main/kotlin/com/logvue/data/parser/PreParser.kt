@@ -2,10 +2,10 @@ package com.logvue.data.parser
 
 enum class ParserType {
     ANDROID_JSON,
-    TEXT_LOG_DETAILED,    // With thread brackets: 00:46:47.548 [thread] LEVEL tag - message
-    TEXT_LOG_SIMPLE,      // DD-MM HH:MM:SS L Tag Message
-    TEXT_LOG_MONTH_NAME,  // MMM-DD HH:MM:SS Tag Level Message
-    TEXT_LOG_PLAIN        // MM-DD HH:MM:SS.mmm PID TID L Tag: Message (Android logcat plain text)
+    TEXT_LOG_DETAILED,
+    TEXT_LOG_SIMPLE,
+    TEXT_LOG_MONTH_NAME,
+    TEXT_LOG_PLAIN
 }
 
 object PreParser {

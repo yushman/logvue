@@ -79,22 +79,17 @@ export default function LogList() {
         fetchFilteredLogs,
         setSelectedEntryId,
         selectedEntryId,
-        pagination,
         maxLogsReached,
         loadMore,
         filters,
         setSearchParams,
-        setSearchCaseSensitive,
-        setSearchRegex,
         clearSearch
     } = useLogStore()
 
     const hasMore = entries.length < total
     const parentRef = useRef<HTMLDivElement>(null)
     const pinnedRef = useRef<HTMLDivElement>(null)
-    const [viewportHeight, setViewportHeight] = useState(0)
     const [searchInput, setSearchInput] = useState('')
-    const loadMoreRef = useRef(false)
     const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
     // Debounced search - uses current toggle state at debounce time

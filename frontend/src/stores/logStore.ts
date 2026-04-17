@@ -25,7 +25,6 @@ export const useLogStore = defineStore('log', () => {
     const error = ref<string | null>(null)
     const pinnedEntryIds = ref<number[]>([])
     const searchHighlightRanges = ref<Record<string, [number, number][]>>({})
-    const searchMatchCount = ref(0)
 
     const filters = ref({
         levels: [...DEFAULT_LEVELS],

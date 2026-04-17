@@ -3,6 +3,7 @@ package com.logvue.service
 import com.logvue.data.model.*
 import com.logvue.data.parser.LogParser
 import com.logvue.data.parser.ParseResult
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 class LogService(private val parser: LogParser) {
@@ -40,12 +41,10 @@ class LogService(private val parser: LogParser) {
 
         var filtered = parseResult.entries.asSequence()
 
-        // Filter by log level
         if (request.levels.isNotEmpty()) {
             filtered = filtered.filter { it.header.logLevel in request.levels }
         }
 
-        // Filter by tag pattern (pipe-separated list means OR)
         if (request.tagPattern.isNotEmpty()) {
             val tags = request.tagPattern.split("|").filter { it.isNotEmpty() }
             filtered = if (request.tagRegex) {
@@ -60,7 +59,6 @@ class LogService(private val parser: LogParser) {
             }
         }
 
-        // Filter out hidden tags (exact match, case-insensitive)
         if (request.hiddenTags.isNotEmpty()) {
             val hiddenTagList = request.hiddenTags.split("|").filter { it.isNotEmpty() }
             filtered = filtered.filter { entry ->
@@ -69,12 +67,10 @@ class LogService(private val parser: LogParser) {
             }
         }
 
-        // Filter by content
         if (request.contentFilter.isNotEmpty()) {
             filtered = filtered.filter { it.message.contains(request.contentFilter, ignoreCase = true) }
         }
 
-        // Filter by searchQuery
         if (!request.searchQuery.isNullOrEmpty()) {
             filtered = if (request.searchRegex) {
                 filtered.filter { entry ->
@@ -94,7 +90,6 @@ class LogService(private val parser: LogParser) {
             }
         }
 
-        // Filter by time range
         request.timeFrom?.let { from ->
             filtered = filtered.filter { it.timestamp >= from }
         }
@@ -102,7 +97,6 @@ class LogService(private val parser: LogParser) {
             filtered = filtered.filter { it.timestamp <= to }
         }
 
-        // Compute counts from all filtered entries (before pagination)
         val filteredList = filtered.toList()
         val total = filteredList.size
 
@@ -120,7 +114,6 @@ class LogService(private val parser: LogParser) {
             .drop(request.offset)
             .take(request.limit)
 
-        // Compute highlight ranges for searchQuery on current page entries
         val searchHighlightRanges = mutableMapOf<String, List<List<Int>>>()
         if (!request.searchQuery.isNullOrEmpty()) {
             entries.forEach { entry ->
@@ -211,7 +204,6 @@ class LogService(private val parser: LogParser) {
             }
         }
 
-        // Build tag colors map (deterministic hash to palette)
         val allTags = buckets.flatMap { it.tags.keys }.toSet()
         val tagColors = allTags.associateWith { tag -> TAG_PALETTE[hashString(tag) % TAG_PALETTE.size] }
 
@@ -222,7 +214,7 @@ class LogService(private val parser: LogParser) {
         )
     }
 
-    private fun generateFileId(): String = java.util.UUID.randomUUID().toString()
+    private fun generateFileId(): String = UUID.randomUUID().toString()
 
     fun getEntry(fileId: String, entryId: Int): LogEntry? {
         val parseResult = logFiles[fileId] ?: return null
@@ -236,7 +228,7 @@ class LogService(private val parser: LogParser) {
     }
 
     companion object {
-        const val MAX_FILE_SIZE = 500 * 1024 * 1024L // 500MB
+        const val MAX_FILE_SIZE = 500 * 1024 * 1024L
 
         private val TAG_PALETTE = listOf(
             "#e41a1c", "#377eb8", "#4daf4a", "#984ea3",
