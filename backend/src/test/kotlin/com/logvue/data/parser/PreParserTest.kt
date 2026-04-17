@@ -258,4 +258,55 @@ class PreParserTest {
         val result = PreParser.detect(content.toByteArray())
         assertEquals(ParserType.TEXT_LOG_MONTH_NAME, result)
     }
+
+    // ========== Plain text logcat format tests (MM-DD HH:MM:SS.mmm PID TID L Tag: Message) ==========
+
+    @Test
+    fun `detect returns TEXT_LOG_PLAIN for Android logcat plain text format`() {
+        val textLog = buildString {
+            appendLine("04-09 11:59:46.133  1184  1680 D ConnectivityService: sending notification CALLBACK_LOST")
+            appendLine("04-09 11:59:46.134  1184  1680 D ConnectivityService: sending notification for NetworkRequest")
+        }
+        val result = PreParser.detect(textLog.toByteArray())
+        assertEquals(ParserType.TEXT_LOG_PLAIN, result)
+    }
+
+    @Test
+    fun `detect returns TEXT_LOG_PLAIN for format with section markers`() {
+        val textLog = buildString {
+            appendLine("--------- beginning of system")
+            appendLine("04-09 11:59:46.133  1184  1680 D ConnectivityService: sending notification")
+            appendLine("--------- beginning of main")
+            appendLine("04-09 11:59:47.100  1184  1680 I ActivityManager: Started package")
+        }
+        val result = PreParser.detect(textLog.toByteArray())
+        assertEquals(ParserType.TEXT_LOG_PLAIN, result)
+    }
+
+    @Test
+    fun `detect returns TEXT_LOG_PLAIN for all log levels`() {
+        val textLog = buildString {
+            appendLine("04-09 11:59:46.133  1184  1680 V Tag: Verbose message")
+            appendLine("04-09 11:59:46.134  1184  1680 D Tag: Debug message")
+            appendLine("04-09 11:59:46.135  1184  1680 I Tag: Info message")
+            appendLine("04-09 11:59:46.136  1184  1680 W Tag: Warn message")
+            appendLine("04-09 11:59:46.137  1184  1680 E Tag: Error message")
+            appendLine("04-09 11:59:46.138  1184  1680 A Tag: Assert message")
+        }
+        val result = PreParser.detect(textLog.toByteArray())
+        assertEquals(ParserType.TEXT_LOG_PLAIN, result)
+    }
+
+    @Test
+    fun `detect TEXT_LOG_PLAIN dominates over sparse JSON-like lines`() {
+        val mixed = buildString {
+            appendLine("{ \"json\": true }")
+            appendLine("04-09 11:59:46.133  1184  1680 D Tag: message 1")
+            appendLine("04-09 11:59:46.134  1184  1680 D Tag: message 2")
+            appendLine("{ \"more\": true }")
+            appendLine("04-09 11:59:46.135  1184  1680 D Tag: message 3")
+        }
+        val result = PreParser.detect(mixed.toByteArray())
+        assertEquals(ParserType.TEXT_LOG_PLAIN, result)
+    }
 }

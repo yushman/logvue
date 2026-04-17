@@ -14,7 +14,6 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.json.Json
-import java.io.File
 
 fun main(args: Array<String>) {
     // Direct instantiation (no Koin needed for Stage 1)
@@ -50,9 +49,9 @@ fun Application.module(logService: LogService) {
 
     install(CallLogging)
 
-    // Serve static files using routing
+    // Serve static files from classpath (works from JAR and filesystem)
     routing {
-        staticFiles("/", File("src/main/resources/files"), "index.html")
+        staticResources("/", "files")
     }
 
     configureRouting(logService)

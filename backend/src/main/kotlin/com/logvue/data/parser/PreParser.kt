@@ -4,7 +4,8 @@ enum class ParserType {
     ANDROID_JSON,
     TEXT_LOG_DETAILED,    // With thread brackets: 00:46:47.548 [thread] LEVEL tag - message
     TEXT_LOG_SIMPLE,      // DD-MM HH:MM:SS L Tag Message
-    TEXT_LOG_MONTH_NAME   // MMM-DD HH:MM:SS Tag Level Message
+    TEXT_LOG_MONTH_NAME,  // MMM-DD HH:MM:SS Tag Level Message
+    TEXT_LOG_PLAIN        // MM-DD HH:MM:SS.mmm PID TID L Tag: Message (Android logcat plain text)
 }
 
 object PreParser {
@@ -22,6 +23,12 @@ object PreParser {
     // Format 3: MMM-DD HH:MM:SS Tag Level Message (e.g., Feb-03 22:13:59 Tag Info Message)
     private val textLogPatternMonthName = Regex(
         """^[A-Za-z]{3}-\d{2}\s+\d{2}:\d{2}:\d{2}\s+[^\s]+\s+[A-Za-z_]+\s+.*"""
+    )
+
+    // Format 4: MM-DD HH:MM:SS.mmm PID TID L Tag: Message (Android logcat plain text)
+    // Example: 04-09 11:59:46.133  1184  1680 D ConnectivityService: sending notification
+    private val textLogPatternPlain = Regex(
+        """^\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d{3}\s+\d+\s+\d+\s+[A-Z]\s+[^:\s]+:\s*.*"""
     )
 
     fun detect(bytes: ByteArray): ParserType {
@@ -44,7 +51,8 @@ object PreParser {
             // Check for text log formats (timestamp patterns)
             if (textLogPatternDetailed.containsMatchIn(line) ||
                 textLogPatternSimple.containsMatchIn(line) ||
-                textLogPatternMonthName.containsMatchIn(line)
+                textLogPatternMonthName.containsMatchIn(line) ||
+                textLogPatternPlain.containsMatchIn(line)
             ) {
                 textScore++
             }
@@ -64,19 +72,22 @@ object PreParser {
         var detailedCount = 0
         var simpleCount = 0
         var monthNameCount = 0
+        var plainCount = 0
 
         for (line in lines) {
             if (textLogPatternDetailed.containsMatchIn(line)) detailedCount++
             if (textLogPatternSimple.containsMatchIn(line)) simpleCount++
             if (textLogPatternMonthName.containsMatchIn(line)) monthNameCount++
+            if (textLogPatternPlain.containsMatchIn(line)) plainCount++
         }
 
         // Return the most common text log format
-        val maxCount = maxOf(detailedCount, simpleCount, monthNameCount)
+        val maxCount = maxOf(detailedCount, simpleCount, monthNameCount, plainCount)
         return when {
             maxCount == detailedCount -> ParserType.TEXT_LOG_DETAILED
             maxCount == simpleCount -> ParserType.TEXT_LOG_SIMPLE
-            else -> ParserType.TEXT_LOG_MONTH_NAME
+            maxCount == monthNameCount -> ParserType.TEXT_LOG_MONTH_NAME
+            else -> ParserType.TEXT_LOG_PLAIN
         }
     }
 }

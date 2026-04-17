@@ -29,6 +29,7 @@ tasks.test {
     useJUnitPlatform()
 }
 
+
 dependencies {
     // Ktor server
     implementation("io.ktor:ktor-server-core:2.3.7")
