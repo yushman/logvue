@@ -6,6 +6,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.22"
     id("com.gradleup.shadow") version "8.3.0"
     id("org.jlleitschuh.gradle.ktlint") version "11.5.1"
+    id("org.graalvm.buildtools.native") version "0.9.28"
 }
 
 group = "com.logvue"
@@ -17,6 +18,10 @@ application {
 
 kotlin {
     jvmToolchain(21)
+}
+
+graalvmNative {
+    targetWithOS("")
 }
 
 tasks.withType<KotlinCompile> {

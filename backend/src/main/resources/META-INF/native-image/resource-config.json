@@ -1,0 +1,33 @@
+{
+  "resources": [
+    {
+      "pattern": "\\Qfiles/E0F0E9E0E0E0E0E0E0E0E0E0E0/\\E",
+      "condition": {
+        "type": "ResourceConfigurationPatternCondition",
+        "patterns": [
+          "files/**"
+        ]
+      }
+    },
+    {
+      "pattern": "\\Qfiles/assets/\\E",
+      "condition": {
+        "type": "ResourceConfigurationPatternCondition",
+        "patterns": [
+          "files/assets/**"
+        ]
+      }
+    },
+    {
+      "pattern": "\\Qlogback.xml\\E"
+    }
+  ],
+  "bundles": [
+    {
+      "name": "kotlin/kotlin",
+      "condition": {
+        "type": "ResourceConfigurationBundleCondition"
+      }
+    }
+  ]
+}

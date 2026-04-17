@@ -1,0 +1,41 @@
+[
+  {
+    "name": "io.ktor.http.cio.CIOConnection",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "io.ktor.http.content.OutgoingContent",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "io.ktor.server.cio.CIOServer",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "io.ktor.server.cio.CIOHttpHandler",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "kotlinx.serialization.json.Json",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "fields": [
+      {
+        "name": "ignoreUnknownKeys"
+      },
+      {
+        "name": "isLenient"
+      },
+      {
+        "name": "prettyPrint"
+      },
+      {
+        "name": "coerceInputValues"
+      }
+    ]
+  }
+]
