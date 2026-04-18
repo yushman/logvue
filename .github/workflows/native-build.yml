@@ -37,15 +37,13 @@ jobs:
 
       - name: Build native image
         run: |
-          cd backend
-          ./gradlew nativeCompile \
-            -Porg.graalvm.native.image.target=${{ matrix.target }}
+          ./gradlew nativeCompile --no-daemon
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: logvue-${{ matrix.target }}
-          path: backend/build/native/nativeCompile/logvue
+          path: backend/build/native/nativeCompile/
 
   release:
     needs: build

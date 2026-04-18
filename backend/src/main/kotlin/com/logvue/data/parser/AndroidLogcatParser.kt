@@ -3,11 +3,7 @@ package com.logvue.data.parser
 import com.logvue.data.model.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.*
 
 class AndroidLogcatParser : LogParser {
 
@@ -85,7 +81,7 @@ class AndroidLogcatParser : LogParser {
         val endTs = entries.filter { it.timestamp > 0 }.maxOfOrNull { it.timestamp } ?: System.currentTimeMillis()
 
         val applicationIds = metadataObj["projectApplicationIds"]?.jsonArray
-            ?.map { it.jsonPrimitive.content }
+            ?.map { (it as kotlinx.serialization.json.JsonPrimitive).content }
             ?: emptyList()
 
         return LogFileMetadata(
@@ -111,7 +107,8 @@ class AndroidLogcatParser : LogParser {
             avdPath = deviceObj?.get("avdPath")?.jsonPrimitive?.contentOrNull,
             release = deviceObj?.get("release")?.jsonPrimitive?.contentOrNull,
             apiLevel = deviceObj?.get("apiLevel")?.jsonPrimitive?.intOrNull,
-            applicationIds = logWrapper["applicationId"]?.jsonArray?.map { it.jsonPrimitive.content } ?: emptyList(),
+            applicationIds = logWrapper["applicationId"]?.jsonArray?.map { (it as kotlinx.serialization.json.JsonPrimitive).content }
+                ?: emptyList(),
             filter = logWrapper["filter"]?.jsonPrimitive?.contentOrNull,
             logCount = entries.size,
             timeRange = TimeRange(startTimestamp = startTs, endTimestamp = endTs)
