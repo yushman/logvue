@@ -6,9 +6,9 @@ import com.logvue.service.LogService
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
-import io.ktor.server.cio.*
 import io.ktor.server.engine.*
 import io.ktor.server.http.content.*
+import io.ktor.server.netty.*
 import io.ktor.server.plugins.callloging.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.*
@@ -57,7 +57,7 @@ private fun startServer(port: Int) {
     val logParser = AutoDetectParser()
     val logService = LogService(logParser)
 
-    embeddedServer(CIO, port = port, host = "0.0.0.0") {
+    embeddedServer(Netty, port = port, host = "0.0.0.0") {
         module(logService)
     }.start(wait = true)
 }
