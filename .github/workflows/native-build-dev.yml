@@ -11,27 +11,39 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup GraalVM
-        uses: graalvm/setup-graalvm@v1
         with:
-          java-version: '21'
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+
       - name: Build frontend
         run: |
           cd frontend && npm ci && npm run build
 
-      - name: Build native image
+      - name: Copy frontend to assets
+        run: cp -r frontend/dist/* backend-go/assets/
+
+      - name: Debug assets
         run: |
-          ./gradlew nativeCompile --no-daemon
+          pwd
+          ls -la backend-go/
+          ls -la backend-go/assets/ 2>/dev/null || echo "assets dir not found"
+          cat backend-go/assets/embed.go 2>/dev/null || echo "embed.go not found"
+
+      - name: Build Go binary
+        run: |
+          cd backend-go && go build -o logvue .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: logvue-darwin-aarch64-dev
-          path: backend/build/native/nativeCompile/
+          name: logvue-darwin-arm64-dev
+          path: backend-go/logvue
