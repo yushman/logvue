@@ -6,8 +6,8 @@ export default defineConfig({
     plugins: [react()],
     base: '/',
     build: {
-        outDir: '../backend/src/main/resources/files',
-        emptyOutDir: true,
+        outDir: './dist',
+        emptyOutDir: false,
         rollupOptions: {
             input: {
                 main: resolve(__dirname, 'index.html')
