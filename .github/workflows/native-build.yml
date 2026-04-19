@@ -13,7 +13,10 @@ jobs:
     strategy:
       matrix:
         goos: [ darwin, linux ]
-        goarch: [ amd64, arm64 ]
+        goarch: [ amd64 ]
+        include:
+          - goos: darwin
+            goarch: arm64
 
     runs-on: ${{ matrix.goos == 'darwin' && 'macos-latest' || 'ubuntu-latest' }}
     steps:
@@ -54,13 +57,13 @@ jobs:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
         run: |
-          cd backend-go && go build -o logvue .
+          cd backend-go && go build -o logvue-${{ matrix.goos }}-${{ matrix.goarch }} .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: logvue-${{ matrix.goos }}-${{ matrix.goarch }}
-          path: backend-go/logvue
+          path: backend-go/logvue-${{ matrix.goos }}-${{ matrix.goarch }}
 
   release:
     needs: build
@@ -76,7 +79,7 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          files: *
+          files: logvue-*
           draft: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
