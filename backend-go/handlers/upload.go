@@ -46,7 +46,12 @@ func (h *UploadHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		fileName = "unknown"
 	}
 
-	response, err := h.logService.UploadLogFile(bytes, fileName)
+	sessionID := ""
+	if cookie, err := r.Cookie("sessionId"); err == nil {
+		sessionID = cookie.Value
+	}
+
+	response, err := h.logService.UploadLogFile(bytes, fileName, sessionID)
 	if err != nil {
 		if _, ok := err.(*models.FileTooLargeException); ok {
 			http.Error(w, err.Error(), http.StatusRequestEntityTooLarge)

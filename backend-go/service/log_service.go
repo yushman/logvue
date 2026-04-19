@@ -7,11 +7,16 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/google/uuid"
 )
 
-const MaxFileSize = 500 * 1024 * 1024 // 500 MB
+const (
+	MaxFileSize     = 500 * 1024 * 1024 // 500 MB
+	SessionTTL      = 24 * time.Hour
+	CleanupInterval = 15 * time.Minute
+)
 
 var tagPalette = []string{
 	"#e41a1c", "#377eb8", "#4daf4a", "#984ea3",
@@ -20,23 +25,82 @@ var tagPalette = []string{
 	"#a6d854", "#ffd92f", "#e5c494", "#b3b3b3",
 }
 
+// Session represents a user session with uploaded log files
+type Session struct {
+	ID         string
+	Files      map[string]*parser.ParseResult
+	CreatedAt  time.Time
+	LastAccess time.Time
+}
+
 // LogService provides in-memory log storage and filtering
 type LogService struct {
-	mu     sync.Mutex
-	files  map[string]*parser.ParseResult
-	parser parser.LogParser
+	mu       sync.Mutex
+	sessions map[string]*Session
+	parser   parser.LogParser
 }
 
 // NewLogService creates a new LogService with the given parser
 func NewLogService(p parser.LogParser) *LogService {
-	return &LogService{
-		files:  make(map[string]*parser.ParseResult),
-		parser: p,
+	ls := &LogService{
+		sessions: make(map[string]*Session),
+		parser:   p,
+	}
+	go ls.cleanupExpiredSessions()
+	return ls
+}
+
+// GetOrCreateSession returns an existing session or creates a new one
+func (s *LogService) GetOrCreateSession(sessionID string) *Session {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if sessionID != "" {
+		if session, exists := s.sessions[sessionID]; exists {
+			session.LastAccess = time.Now()
+			return session
+		}
+	}
+
+	newSession := &Session{
+		ID:         generateUUID(),
+		Files:      make(map[string]*parser.ParseResult),
+		CreatedAt:  time.Now(),
+		LastAccess: time.Now(),
+	}
+	s.sessions[newSession.ID] = newSession
+	return newSession
+}
+
+// ValidateSessionFileAccess checks if a file belongs to a session
+func (s *LogService) ValidateSessionFileAccess(sessionID, fileID string) bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	session, exists := s.sessions[sessionID]
+	if !exists {
+		return false
+	}
+	_, fileExists := session.Files[fileID]
+	return fileExists
+}
+
+func (s *LogService) cleanupExpiredSessions() {
+	ticker := time.NewTicker(CleanupInterval)
+	for range ticker.C {
+		s.mu.Lock()
+		now := time.Now()
+		for id, session := range s.sessions {
+			if now.Sub(session.LastAccess) > SessionTTL {
+				delete(s.sessions, id)
+			}
+		}
+		s.mu.Unlock()
 	}
 }
 
 // UploadLogFile parses and stores a log file
-func (s *LogService) UploadLogFile(bytes []byte, fileName string) (*models.LogUploadResponse, error) {
+func (s *LogService) UploadLogFile(bytes []byte, fileName string, sessionID string) (*models.LogUploadResponse, error) {
 	if int64(len(bytes)) > MaxFileSize {
 		return nil, &models.FileTooLargeException{ActualSize: int64(len(bytes)), MaxSize: MaxFileSize}
 	}
@@ -49,7 +113,8 @@ func (s *LogService) UploadLogFile(bytes []byte, fileName string) (*models.LogUp
 	fileID := generateUUID()
 
 	s.mu.Lock()
-	s.files[fileID] = result
+	session := s.GetOrCreateSession(sessionID)
+	session.Files[fileID] = result
 	s.mu.Unlock()
 
 	return &models.LogUploadResponse{
@@ -60,17 +125,26 @@ func (s *LogService) UploadLogFile(bytes []byte, fileName string) (*models.LogUp
 	}, nil
 }
 
-// GetLogFile retrieves the full parse result by file ID
-func (s *LogService) GetLogFile(fileID string) *parser.ParseResult {
+// GetLogFile retrieves the full parse result by file ID (session-validated)
+func (s *LogService) GetLogFile(sessionID, fileID string) *parser.ParseResult {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	return s.files[fileID]
+
+	session, exists := s.sessions[sessionID]
+	if !exists {
+		return nil
+	}
+	return session.Files[fileID]
 }
 
 // FilterLogs applies filters and returns paginated results
-func (s *LogService) FilterLogs(request models.FilterRequest) models.FilterResponse {
+func (s *LogService) FilterLogs(sessionID string, request models.FilterRequest) models.FilterResponse {
 	s.mu.Lock()
-	result := s.files[request.FileID]
+	session, sessionExists := s.sessions[sessionID]
+	var result *parser.ParseResult
+	if sessionExists {
+		result = session.Files[request.FileID]
+	}
 	s.mu.Unlock()
 
 	if result == nil || result.Entries == nil {
@@ -251,9 +325,13 @@ func (s *LogService) FilterLogs(request models.FilterRequest) models.FilterRespo
 }
 
 // GetTimeline generates timeline buckets
-func (s *LogService) GetTimeline(request models.TimelineRequest) models.TimelineResponse {
+func (s *LogService) GetTimeline(sessionID string, request models.TimelineRequest) models.TimelineResponse {
 	s.mu.Lock()
-	result := s.files[request.FileID]
+	session, sessionExists := s.sessions[sessionID]
+	var result *parser.ParseResult
+	if sessionExists {
+		result = session.Files[request.FileID]
+	}
 	s.mu.Unlock()
 
 	if result == nil {
@@ -317,10 +395,14 @@ func (s *LogService) GetTimeline(request models.TimelineRequest) models.Timeline
 	}
 }
 
-// GetEntry retrieves a single entry by fileID and entryID
-func (s *LogService) GetEntry(fileID string, entryID int) *models.LogEntry {
+// GetEntry retrieves a single entry by fileID and entryID (session-validated)
+func (s *LogService) GetEntry(sessionID, fileID string, entryID int) *models.LogEntry {
 	s.mu.Lock()
-	result := s.files[fileID]
+	session, exists := s.sessions[sessionID]
+	var result *parser.ParseResult
+	if exists {
+		result = session.Files[fileID]
+	}
 	s.mu.Unlock()
 
 	if result == nil {
@@ -335,10 +417,14 @@ func (s *LogService) GetEntry(fileID string, entryID int) *models.LogEntry {
 	return nil
 }
 
-// GetMetadata returns tag-to-color mapping for a file
-func (s *LogService) GetMetadata(fileID string) map[string]string {
+// GetMetadata returns tag-to-color mapping for a file (session-validated)
+func (s *LogService) GetMetadata(sessionID, fileID string) map[string]string {
 	s.mu.Lock()
-	result := s.files[fileID]
+	session, exists := s.sessions[sessionID]
+	var result *parser.ParseResult
+	if exists {
+		result = session.Files[fileID]
+	}
 	s.mu.Unlock()
 
 	if result == nil {

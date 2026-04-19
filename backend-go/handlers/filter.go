@@ -27,7 +27,17 @@ func (h *FilterHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := h.logService.FilterLogs(request)
+	sessionID := ""
+	if cookie, err := r.Cookie("sessionId"); err == nil {
+		sessionID = cookie.Value
+	}
+
+	if !h.logService.ValidateSessionFileAccess(sessionID, request.FileID) {
+		http.Error(w, "File not found", http.StatusNotFound)
+		return
+	}
+
+	response := h.logService.FilterLogs(sessionID, request)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)

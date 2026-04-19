@@ -26,7 +26,17 @@ func (h *MetadataHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	metadata := h.logService.GetMetadata(fileID)
+	sessionID := ""
+	if cookie, err := r.Cookie("sessionId"); err == nil {
+		sessionID = cookie.Value
+	}
+
+	if !h.logService.ValidateSessionFileAccess(sessionID, fileID) {
+		http.Error(w, "File not found", http.StatusNotFound)
+		return
+	}
+
+	metadata := h.logService.GetMetadata(sessionID, fileID)
 	if metadata == nil {
 		http.Error(w, "File not found", http.StatusNotFound)
 		return

@@ -17,6 +17,8 @@ go build -o logvue .          # Build binary
 ./logvue start -p 8080        # Start server
 ./logvue stop                  # Stop server
 ./logvue status                # Check status
+go test ./...                  # Run all tests
+go test ./parser -run TestName # Run single test
 ```
 
 ### Frontend (React/Vite)
@@ -24,9 +26,24 @@ go build -o logvue .          # Build binary
 ```bash
 cd frontend
 npm install                   # Install dependencies
-npm run dev                   # Start dev server
+npm run dev                   # Start dev server (port 5173, proxies to 8080)
 npm run build                 # Production build (outputs to ../backend-go/files)
+npm run lint                  # ESLint
 ```
+
+### Root (Makefile)
+
+```bash
+make build   # Build frontend then Go binary
+make run     # Start server on 8080
+make stop    # Stop server
+make status  # Check server status
+```
+
+### Dev Scripts
+
+- `devb.sh` - Build backend, kill port 8080, start LogVue on 8080
+- `devf.sh` - Build frontend only
 
 ## Architecture
 
@@ -53,6 +70,7 @@ backend-go/
     plain_text.go           # MM-DD HH:MM:SS.mmm PID TID L Tag: message
   handlers/
     health.go              # GET /health
+    session.go             # GET /api/session (create/retrieve session)
     upload.go              # POST /api/logs/upload
     filter.go              # POST /api/logs/filter
     timeline.go            # GET /api/logs/timeline
@@ -90,6 +108,7 @@ Note: Uses CSS Modules (`.module.css`) for styling.
 | Method | Path                 | Purpose                                          |
 |--------|----------------------|--------------------------------------------------|
 | GET    | `/health`            | Health check                                     |
+| GET    | `/api/session`       | Get/create session (sets cookie)                 |
 | POST   | `/api/logs/upload`   | Upload log file, returns metadata + fileId       |
 | POST   | `/api/logs/filter`   | Filter logs (levels, tag, content, time, search) |
 | GET    | `/api/logs/timeline` | Get timeline buckets (fileId, resolution params) |

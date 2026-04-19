@@ -7,6 +7,7 @@ import MessageInspector from './components/MessageInspector'
 import FileDropzone from './components/FileDropzone'
 import ErrorDisplay from './components/ErrorDisplay'
 import {useLogStore} from './stores/useLogStore'
+import {ensureSession} from './api/client'
 import styles from './App.module.css'
 
 export default function App() {
@@ -23,6 +24,10 @@ export default function App() {
 
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
     const [errorType, setErrorType] = useState<'error' | 'warning' | 'info'>('error')
+
+    useEffect(() => {
+        ensureSession().catch(console.error)
+    }, [])
 
     useEffect(() => {
         if (error) {

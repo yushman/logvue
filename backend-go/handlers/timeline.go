@@ -59,7 +59,17 @@ func (h *TimelineHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		TimeTo:     timeTo,
 	}
 
-	response := h.logService.GetTimeline(request)
+	sessionID := ""
+	if cookie, err := r.Cookie("sessionId"); err == nil {
+		sessionID = cookie.Value
+	}
+
+	if !h.logService.ValidateSessionFileAccess(sessionID, fileID) {
+		http.Error(w, "File not found", http.StatusNotFound)
+		return
+	}
+
+	response := h.logService.GetTimeline(sessionID, request)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)

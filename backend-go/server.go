@@ -2,7 +2,7 @@ package main
 
 import (
 	"log"
-	"logvue/assets"
+	. "logvue/assets"
 	"logvue/handlers"
 	"logvue/parser"
 	"logvue/service"
@@ -24,6 +24,7 @@ func startServer(port int) error {
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
 			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Accept, Origin")
 
@@ -34,6 +35,7 @@ func startServer(port int) error {
 		})
 	})
 
+	sessionHandler := handlers.NewSessionHandler(logService)
 	uploadHandler := handlers.NewUploadHandler(logService)
 	filterHandler := handlers.NewFilterHandler(logService)
 	timelineHandler := handlers.NewTimelineHandler(logService)
@@ -41,6 +43,7 @@ func startServer(port int) error {
 	metadataHandler := handlers.NewMetadataHandler(logService)
 
 	r.HandleFunc("/health", handlers.HealthHandler).Methods(http.MethodGet)
+	r.HandleFunc("/api/session", sessionHandler.ServeHTTP).Methods(http.MethodGet)
 	r.HandleFunc("/api/logs/upload", uploadHandler.ServeHTTP).Methods(http.MethodPost)
 	r.HandleFunc("/api/logs/filter", filterHandler.ServeHTTP).Methods(http.MethodPost)
 	r.HandleFunc("/api/logs/timeline", timelineHandler.ServeHTTP).Methods(http.MethodGet)

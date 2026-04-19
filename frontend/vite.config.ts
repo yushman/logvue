@@ -6,8 +6,8 @@ export default defineConfig({
     plugins: [react()],
     base: '/',
     build: {
-        outDir: './dist',
-        emptyOutDir: false,
+        outDir: '../backend-go/assets',
+        emptyOutDir: true,
         rollupOptions: {
             input: {
                 main: resolve(__dirname, 'index.html')

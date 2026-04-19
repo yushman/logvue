@@ -12,12 +12,27 @@ interface LogMetadata {
     timeRange: TimeRange
 }
 
+export async function ensureSession(): Promise<string> {
+    const response = await fetch('/api/session', {
+        method: 'GET',
+        credentials: 'include'
+    })
+    if (!response.ok) {
+        throw new Error('Failed to get session')
+    }
+    const data = await response.json()
+    return data.sessionId
+}
+
 export async function uploadLogFile(file: File): Promise<LogMetadata> {
+    await ensureSession()
+
     const formData = new FormData()
     formData.append('file', file)
 
     const response = await fetch('/api/logs/upload', {
         method: 'POST',
+        credentials: 'include',
         body: formData
     })
 
@@ -32,6 +47,7 @@ export async function uploadLogFile(file: File): Promise<LogMetadata> {
 export async function filterLogs(request: FilterRequest): Promise<FilterResponse> {
     const response = await fetch('/api/logs/filter', {
         method: 'POST',
+        credentials: 'include',
         headers: {
             'Content-Type': 'application/json'
         },
@@ -56,7 +72,7 @@ export async function getTimeline(
     if (timeFrom !== undefined) url += `&timeFrom=${timeFrom}`
     if (timeTo !== undefined) url += `&timeTo=${timeTo}`
 
-    const response = await fetch(url)
+    const response = await fetch(url, {credentials: 'include'})
 
     if (!response.ok) {
         throw new Error(`Timeline failed: ${response.statusText}`)
@@ -66,7 +82,9 @@ export async function getTimeline(
 }
 
 export async function getEntry(fileId: string, entryId: number): Promise<LogEntry> {
-    const response = await fetch(`/api/logs/entry?fileId=${encodeURIComponent(fileId)}&entryId=${entryId}`)
+    const response = await fetch(`/api/logs/entry?fileId=${encodeURIComponent(fileId)}&entryId=${entryId}`, {
+        credentials: 'include'
+    })
 
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
@@ -77,7 +95,9 @@ export async function getEntry(fileId: string, entryId: number): Promise<LogEntr
 }
 
 export async function getMetadata(fileId: string): Promise<{ tagColors: Record<string, string> }> {
-    const response = await fetch(`/api/logs/metadata?fileId=${encodeURIComponent(fileId)}`)
+    const response = await fetch(`/api/logs/metadata?fileId=${encodeURIComponent(fileId)}`, {
+        credentials: 'include'
+    })
 
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))

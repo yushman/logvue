@@ -39,7 +39,17 @@ func (h *EntryHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	entry := h.logService.GetEntry(fileID, entryID)
+	sessionID := ""
+	if cookie, err := r.Cookie("sessionId"); err == nil {
+		sessionID = cookie.Value
+	}
+
+	if !h.logService.ValidateSessionFileAccess(sessionID, fileID) {
+		http.Error(w, "File not found", http.StatusNotFound)
+		return
+	}
+
+	entry := h.logService.GetEntry(sessionID, fileID, entryID)
 	if entry == nil {
 		http.Error(w, "Entry not found", http.StatusNotFound)
 		return
