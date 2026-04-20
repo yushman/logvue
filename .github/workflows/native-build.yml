@@ -35,20 +35,6 @@ jobs:
         run: |
           cd frontend && npm ci && npm run build
 
-      - name: Copy frontend to assets
-        run: cp -r frontend/dist/* backend-go/assets/
-
-      - name: Debug assets
-        run: |
-          pwd
-          ls -la backend-go/
-          ls -la backend-go/assets/ 2>/dev/null || echo "assets dir not found"
-          cat backend-go/assets/embed.go 2>/dev/null || echo "embed.go not found"
-
-      - name: Download Go dependencies
-        run: |
-          cd backend-go && go mod download
-
       - name: Build Go binary
         env:
           GOOS: ${{ matrix.goos }}

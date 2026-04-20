@@ -2,7 +2,7 @@ package main
 
 import (
 	"log"
-	. "logvue/assets"
+	"logvue/assets"
 	"logvue/handlers"
 	"logvue/parser"
 	"logvue/service"
@@ -64,6 +64,6 @@ func startServer(port int) error {
 		os.Remove(pidFile)
 	}()
 
-	log.Printf("Server starting on port %d", port)
+	log.Printf("Server starting on addr http://localhost%s", addr)
 	return server.ListenAndServe()
 }

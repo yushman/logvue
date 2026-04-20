@@ -1,6 +1,6 @@
-package main
+package assets
 
 import "embed"
 
-//go:embed assets
+//go:embed *
 var FS embed.FS
