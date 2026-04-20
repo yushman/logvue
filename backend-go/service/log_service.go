@@ -54,7 +54,11 @@ func NewLogService(p parser.LogParser) *LogService {
 func (s *LogService) GetOrCreateSession(sessionID string) *Session {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	return s.getOrCreateSessionUnsafe(sessionID)
+}
 
+// getOrCreateSessionUnsafe returns an existing session or creates a new one (must be called while holding lock)
+func (s *LogService) getOrCreateSessionUnsafe(sessionID string) *Session {
 	if sessionID != "" {
 		if session, exists := s.sessions[sessionID]; exists {
 			session.LastAccess = time.Now()
@@ -113,7 +117,7 @@ func (s *LogService) UploadLogFile(bytes []byte, fileName string, sessionID stri
 	fileID := generateUUID()
 
 	s.mu.Lock()
-	session := s.GetOrCreateSession(sessionID)
+	session := s.getOrCreateSessionUnsafe(sessionID)
 	session.Files[fileID] = result
 	s.mu.Unlock()
 

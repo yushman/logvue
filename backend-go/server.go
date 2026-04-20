@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"logvue/assets"
 	"logvue/handlers"
@@ -23,7 +24,8 @@ func startServer(port int) error {
 
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Access-Control-Allow-Origin", "*")
+			origin := r.Header.Get("Origin")
+			w.Header().Set("Access-Control-Allow-Origin", origin)
 			w.Header().Set("Access-Control-Allow-Credentials", "true")
 			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Accept, Origin")
@@ -60,7 +62,7 @@ func startServer(port int) error {
 		sigChan := make(chan os.Signal, 1)
 		signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 		<-sigChan
-		server.Shutdown(nil)
+		server.Shutdown(context.Background())
 		os.Remove(pidFile)
 	}()
 
