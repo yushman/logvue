@@ -1,7 +1,7 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
-import {scaleBand} from '@visx/scale'
+import {scaleLinear} from '@visx/scale'
 import {Group} from '@visx/group'
-import {AxisBottom} from '@visx/axis'
+import {interpolateRgb} from 'd3-interpolate'
 import type {TimelineBucket} from '../types/LogEntry'
 import {useLogStore} from '../stores/useLogStore'
 import styles from './Timeline.module.css'
@@ -14,14 +14,13 @@ interface TimelineProps {
     onRangeSelect: (range: { from: number; to: number } | null) => void
 }
 
-const MARGIN = {top: 10, right: 10, bottom: 40, left: 10}
+const MARGIN = {top: 10, right: 20, bottom: 50, left: 10}
 const CHART_HEIGHT = 120
 const MAX_SEGMENTS = 5
-const GRAY = '#999999'
 const NUM_BUCKETS = 30
 
 interface BucketSegment {
-    tag: stringLogs
+    tag: string
     count: number
     color: string
     y0: number
@@ -33,6 +32,9 @@ interface BucketSegments {
     segments: BucketSegment[]
 }
 
+const COLD_COLOR = '#3b4cc0'
+const HOT_COLOR = '#b40426'
+
 function computeSegments(
     buckets: TimelineBucket[],
     tagColors: Record<string, string>,
@@ -43,6 +45,12 @@ function computeSegments(
     const maxCount = Math.max(1, ...buckets.map(b => b.count))
     const availableHeight = chartHeight - MARGIN.top - MARGIN.bottom
 
+    // Density color scale: blue (cold/low) → red (hot/high)
+    const colorScale = scaleLinear<string>()
+        .domain([0, maxCount])
+        .range([COLD_COLOR, HOT_COLOR])
+        .interpolate(interpolateRgb as any)
+
     return buckets.map((bucket) => {
         const sortedTags = Object.entries(bucket.tags)
             .sort((a, b) => b[1] - a[1])
@@ -50,6 +58,8 @@ function computeSegments(
         const topTags = sortedTags.slice(0, MAX_SEGMENTS)
         const otherTags = sortedTags.slice(MAX_SEGMENTS)
         const otherCount = otherTags.reduce((sum, [, c]) => sum + c, 0)
+
+        const barColor = colorScale(bucket.count)
 
         const segments: BucketSegment[] = []
         let cumulative = 0
@@ -59,7 +69,7 @@ function computeSegments(
             segments.push({
                 tag,
                 count,
-                color: tagColors[tag] || GRAY,
+                color: barColor,
                 y0: cumulative,
                 height: segHeight
             })
@@ -71,7 +81,7 @@ function computeSegments(
             segments.push({
                 tag: `+${otherTags.length} more`,
                 count: otherCount,
-                color: GRAY,
+                color: barColor,
                 y0: cumulative,
                 height: segHeight
             })
@@ -96,12 +106,13 @@ function formatTime(ts: number, showMillis: boolean = false): string {
     return base
 }
 
-function formatTooltip(bucket: TimelineBucket, segments: BucketSegment[]): string {
-    const time = formatTime(bucket.timestamp)
+function formatTooltip(bucket: TimelineBucket, segments: BucketSegment[], startTime: number, endTime: number): string {
+    const start = formatTime(startTime)
+    const end = formatTime(endTime)
     const tagLines = segments
         .map(s => `${s.tag}: ${s.count}`)
         .join(', ')
-    return `${time} — ${tagLines}`
+    return `${start} → ${end}  |  ${tagLines}`
 }
 
 export default function Timeline({
@@ -160,9 +171,8 @@ export default function Timeline({
         return {x, width}
     }, [selectedRange, timestampToX])
 
-    // Dynamic tick labels: show ~6 evenly spaced labels
-    const tickCount = 6
-    const tickStep = Math.max(1, Math.floor(buckets.length / tickCount))
+    // Show time legend label every Nth bucket to avoid overlap
+    const legendStep = Math.max(1, Math.floor(buckets.length / 6))
 
     useEffect(() => {
         if (!chartRef.current) return
@@ -193,30 +203,6 @@ export default function Timeline({
             </div>
             <div className={`${styles.chartWrapper} ${collapsed ? styles.chartWrapperCollapsed : ''}`} ref={chartRef}>
                 <svg width={containerWidth} height={CHART_HEIGHT}>
-                    <AxisBottom
-                        top={CHART_HEIGHT - MARGIN.bottom}
-                        left={MARGIN.left}
-                        scale={scaleBand({
-                            domain: buckets.map((_, i) => i.toString()),
-                            range: [0, chartWidth],
-                            padding: 0.1
-                        })}
-                        stroke="#ccc"
-                        tickFormat={(i) => {
-                            const idx = parseInt(i)
-                            if (idx < 0 || idx >= buckets.length) return ''
-                            if (idx % tickStep !== 0) return ''
-                            return formatTime(buckets[idx].timestamp, bucketSizeMs < 10_000)
-                        }}
-                        tickLength={4}
-                        tickStroke="#ccc"
-                        tickLabelProps={() => ({
-                            fill: '#666',
-                            fontSize: 10,
-                            textAnchor: 'middle'
-                        })}
-                    />
-
                     {selectedOverlay && (
                         <rect
                             x={selectedOverlay.x}
@@ -233,6 +219,11 @@ export default function Timeline({
                         {segments.map((seg, i) => {
                             const barX = (i * chartWidth) / buckets.length
                             const barWidth = Math.max(2, chartWidth / buckets.length - 1)
+                            const barHeight = (seg.bucket.count / Math.max(1, Math.max(...buckets.map(b => b.count)))) * chartHeight
+                            const barColor = seg.segments[0]?.color || COLD_COLOR
+
+                            // Calculate midpoint time of this bucket for legend label
+                            const bucketMidTime = seg.bucket.timestamp + bucketSizeMs / 2
 
                             return (
                                 <Group
@@ -241,19 +232,28 @@ export default function Timeline({
                                     onClick={() => handleBarClick(i)}
                                     style={{cursor: 'pointer'}}
                                 >
-                                    {seg.segments.map((s, si) => (
-                                        <rect
-                                            key={`${s.tag}-${si}`}
-                                            x={0}
-                                            y={chartHeight - s.y0 - s.height}
-                                            width={barWidth}
-                                            height={s.height}
-                                            fill={s.color}
-                                            opacity={0.85}
+                                    <rect
+                                        x={0}
+                                        y={chartHeight - barHeight}
+                                        width={barWidth}
+                                        height={barHeight}
+                                        fill={barColor}
+                                        opacity={0.85}
+                                    >
+                                        <title>{formatTooltip(seg.bucket, seg.segments, seg.bucket.timestamp, seg.bucket.timestamp + bucketSizeMs)}</title>
+                                    </rect>
+                                    {/* Time legend label under each bar (show every Nth to avoid overlap) */}
+                                    {i % legendStep === 0 && (
+                                        <text
+                                            x={barWidth / 2}
+                                            y={chartHeight + 14}
+                                            textAnchor="middle"
+                                            fill="#666"
+                                            fontSize={9}
                                         >
-                                            <title>{formatTooltip(seg.bucket, seg.segments)}</title>
-                                        </rect>
-                                    ))}
+                                            {formatTime(bucketMidTime)}
+                                        </text>
+                                    )}
                                 </Group>
                             )
                         })}

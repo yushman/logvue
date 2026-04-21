@@ -1,0 +1,42 @@
+name: Native Build (Dev Linux x86)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+
+      - name: Build frontend
+        run: |
+          cd frontend && npm ci && npm run build
+
+      - name: Build Go binary
+        env:
+          GOOS: linux
+          GOARCH: amd64
+        run: |
+          cd backend-go && go build -o logvue .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: logvue-linux-amd64-dev
+          path: backend-go/logvue
