@@ -23,7 +23,7 @@ var (
 	patternDetailed   = regexp.MustCompile(`^\d{2}:\d{2}:\d{2}\.\d{3}\s+\[[^\]]+\]\s+[A-Z_]+\s+.+\s+-\s+`)
 	patternSimple     = regexp.MustCompile(`^\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\s+[A-Z]\s+[^\s]+\s+.*`)
 	patternMonthName  = regexp.MustCompile(`^[A-Za-z]{3}-\d{2}\s+\d{2}:\d{2}:\d{2}\s+[^\s]+\s+[A-Za-z_]+\s+.*`)
-	patternPlain      = regexp.MustCompile(`^\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d{3}\s+\d+\s+\d+\s+[A-Z]\s+[^:\s]+:\s*.*`)
+	patternPlain      = regexp.MustCompile(`^\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d{3}\s+\d+\s+\d+(\s+\d+)?\s+[A-Z]\s+[^:\s]+:\s*.*`)
 	patternJSONStart  = regexp.MustCompile(`^[\[{]`)
 )
 

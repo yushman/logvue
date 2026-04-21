@@ -17,7 +17,7 @@ func NewPlainTextLogcatParser() *PlainTextLogcatParser {
 	return &PlainTextLogcatParser{}
 }
 
-var plainPattern = regexp.MustCompile(`^(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})\.(\d{3})\s+(\d+)\s+(\d+)\s+([A-Z])\s+([^:\s]+):\s*(.*)$`)
+var plainPattern = regexp.MustCompile(`^(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})\.(\d{3})\s+([^\s]+)\s+([^\s]+)(?:\s+([^\s]+))?\s+([A-Z])\s+([^:\s]+):\s*(.*)$`)
 var sectionMarker = regexp.MustCompile(`^-+$`)
 
 func (p *PlainTextLogcatParser) Parse(bytes []byte, fileName string) (*ParseResult, error) {
@@ -33,16 +33,18 @@ func (p *PlainTextLogcatParser) Parse(bytes []byte, fileName string) (*ParseResu
 		}
 
 		matches := plainPattern.FindStringSubmatch(line)
-		if len(matches) < 12 {
+		// Check minimum groups: 11 (without optional UID) or 12 (with UID)
+		if len(matches) < 11 {
 			continue
 		}
 
 		monthStr, dayStr := matches[1], matches[2]
 		hourStr, minStr, secStr, msStr := matches[3], matches[4], matches[5], matches[6]
 		pidStr, tidStr := matches[7], matches[8]
-		levelChar := matches[9]
-		tag := matches[10]
-		message := matches[11]
+		// UID (matches[9]) is optional - only present when there are 3 numeric fields
+		levelChar := matches[10]
+		tag := matches[11]
+		message := matches[12]
 
 		month, _ := strconv.Atoi(monthStr)
 		day, _ := strconv.Atoi(dayStr)
