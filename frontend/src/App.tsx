@@ -13,6 +13,7 @@ import styles from './App.module.css'
 export default function App() {
     const {
         metadata,
+        fileId,
         buckets,
         tagColors,
         selectedRange,
@@ -26,7 +27,15 @@ export default function App() {
     const [errorType, setErrorType] = useState<'error' | 'warning' | 'info'>('error')
 
     useEffect(() => {
-        ensureSession().catch(console.error)
+        ensureSession()
+            .then(() => {
+                // Clear old fileId from persist if session changed
+                const currentFileId = fileId
+                if (currentFileId) {
+                    // Keep fileId - it will be validated against session on filter request
+                }
+            })
+            .catch(console.error)
     }, [])
 
     useEffect(() => {
@@ -37,10 +46,10 @@ export default function App() {
     }, [error])
 
     useEffect(() => {
-        if (metadata) {
+        if (metadata && fileId) {
             fetchFilteredLogs()
         }
-    }, [metadata])
+    }, [metadata, fileId])
 
     const handleFileSelected = async (file: File) => {
         await uploadLog(file)

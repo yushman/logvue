@@ -54,11 +54,14 @@ export async function filterLogs(request: FilterRequest): Promise<FilterResponse
         body: JSON.stringify(request)
     })
 
+    const data = await response.json()
     if (!response.ok) {
-        throw new Error(`Filter failed: ${response.statusText}`)
+        const error = new Error(data.error || `Filter failed: ${response.statusText}`)
+        ;(error as any).status = response.status
+        throw error
     }
 
-    return response.json()
+    return data
 }
 
 export async function getTimeline(

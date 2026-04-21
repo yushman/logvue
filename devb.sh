@@ -4,7 +4,7 @@ BACKEND_DIR="$SCRIPT_DIR/backend-go"
 cd "$BACKEND_DIR"
 
 BINARY="./logvue"
-CMD="${1:-run}"
+CMD="${1}"
 
 build() {
     echo "Building..."

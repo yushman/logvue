@@ -251,7 +251,12 @@ export const useLogStore = create<LogStore>()(
                     })
                 } catch (e) {
                     console.error('[LogStore] Filter error:', e)
-                    set({error: e instanceof Error ? e.message : 'Filter failed'})
+                    const err = e as any
+                    const errMsg = err.message || 'Filter failed'
+                    const status = err.status
+                    console.log('[LogStore] Filter error details:', {errMsg, status, err})
+                    // Treat any non-ok response as "file not found" to clear stale state
+                    get().clearLog()
                 } finally {
                     set({isLoading: false})
                 }
@@ -410,7 +415,8 @@ export const useLogStore = create<LogStore>()(
                     allTags: [],
                     timelineCollapsed: false,
                     maxLogsReached: false,
-                    hiddenTags: []
+                    hiddenTags: [],
+                    error: null
                 })
             },
 

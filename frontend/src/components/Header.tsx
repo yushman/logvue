@@ -26,9 +26,11 @@ export default function Header() {
         <header className={styles.header}>
             <div className={styles.left}>
                 <div className={styles.logo}>
-                    <svg className={styles.logoIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                              d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/>
+                    <svg className={styles.logoIcon} viewBox="0 0 32 32">
+                        <rect width="32" height="32" rx="6" fill="#1a1a2e"/>
+                        <text x="16" y="22" fontFamily="monospace" fontSize="14" fontWeight="bold" fill="#00d4aa"
+                              textAnchor="middle">LV
+                        </text>
                     </svg>
                     <span className={styles.appName}>LogVue</span>
                     <span className={styles.version}>{VERSION}</span>
