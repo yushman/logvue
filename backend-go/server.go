@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
+	"fmt"
 	"log"
 	"logvue/assets"
 	"logvue/handlers"
@@ -14,9 +16,10 @@ import (
 	"syscall"
 
 	"github.com/gorilla/mux"
+	"golang.org/x/crypto/acme/autocert"
 )
 
-func startServer(port int) error {
+func startServer(port int, tlsEnabled bool, domain string, httpsPort int) error {
 	autoParser := parser.NewAutoDetectParser()
 	logService := service.NewLogService(autoParser)
 
@@ -55,13 +58,73 @@ func startServer(port int) error {
 	// Serve static files from embedded frontend build output
 	r.PathPrefix("/").Handler(http.FileServer(http.FS(assets.FS)))
 
-	addr := ":" + strconv.Itoa(port)
-	server := &http.Server{Addr: addr, Handler: r}
-
+	// Graceful shutdown handler
+	shutdownCh := make(chan error, 1)
 	go func() {
 		sigChan := make(chan os.Signal, 1)
 		signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 		<-sigChan
+		shutdownCh <- nil
+	}()
+
+	if tlsEnabled {
+		// HTTPS with Let's Encrypt autocert
+		httpsAddr := ":" + strconv.Itoa(httpsPort)
+
+		certManager := autocert.Manager{
+			Prompt:     autocert.AcceptTOS,
+			HostPolicy: autocert.HostWhitelist(domain),
+			Cache:      autocert.DirCache(fmt.Sprintf(".autocert-cache")),
+		}
+
+		tlsConfig := certManager.TLSConfig()
+		tlsConfig.MinVersion = tls.VersionTLS12
+
+		httpsServer := &http.Server{
+			Addr:    httpsAddr,
+			Handler: r,
+		}
+
+		// HTTP server for ACME challenges and redirects
+		httpServer := &http.Server{
+			Addr: fmt.Sprintf(":%d", port),
+			Handler: http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+				if req.URL.Path == "/.well-known/acme-challenge/" {
+					certManager.HTTPHandler(nil).ServeHTTP(w, req)
+					return
+				}
+				target := fmt.Sprintf("https://%s%s", domain, req.URL.Path)
+				if req.URL.RawQuery != "" {
+					target += "?" + req.URL.RawQuery
+				}
+				http.Redirect(w, req, target, http.StatusMovedPermanently)
+			}),
+		}
+
+		go func() {
+			log.Printf("HTTP server starting on port %d (redirecting to HTTPS)", port)
+			if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+				log.Printf("HTTP server error: %v", err)
+			}
+		}()
+
+		go func() {
+			log.Printf("HTTPS server starting on addr %s (Let's Encrypt)", httpsAddr)
+			if err := httpsServer.ListenAndServeTLS("", ""); err != nil && err != http.ErrServerClosed {
+				log.Printf("HTTPS server error: %v", err)
+			}
+		}()
+
+		<-shutdownCh
+		return httpsServer.Shutdown(context.Background())
+	}
+
+	// Plain HTTP mode
+	addr := ":" + strconv.Itoa(port)
+	server := &http.Server{Addr: addr, Handler: r}
+
+	go func() {
+		<-shutdownCh
 		server.Shutdown(context.Background())
 		os.Remove(pidFile)
 	}()
