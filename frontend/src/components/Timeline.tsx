@@ -162,13 +162,20 @@ export default function Timeline({
         [buckets, timeRange, onRangeSelect]
     )
 
-    // Selected range overlay rect
+    // Selected range overlay rect - rendered only over the selected bar, not the whole timeline
     const selectedOverlay = useMemo(() => {
-        if (!selectedRange) return null
-        const x = timestampToX(selectedRange.from)
-        const width = timestampToX(selectedRange.to) - x
-        return {x, width}
-    }, [selectedRange, timestampToX])
+        if (!selectedRange || buckets.length === 0) return null
+        // Find the bar that corresponds to selectedRange
+        const barIndex = buckets.findIndex((b, i) => {
+            const barStart = b.timestamp
+            const barEnd = i === buckets.length - 1 ? timeRange.endTimestamp : buckets[i + 1].timestamp
+            return selectedRange.from >= barStart && selectedRange.from < barEnd
+        })
+        if (barIndex === -1) return null
+        const barX = (barIndex * chartWidth) / buckets.length
+        const barWidth = Math.max(2, chartWidth / buckets.length - 1)
+        return {x: barX, width: barWidth}
+    }, [selectedRange, buckets, timeRange, chartWidth])
 
     // Show time legend label every Nth bucket to avoid overlap
     const legendStep = Math.max(1, Math.floor(buckets.length / 6))

@@ -318,11 +318,19 @@ export const useLogStore = create<LogStore>()(
             setTimeFrom: (time: number | null) => {
                 set(state => ({filters: {...state.filters, timeFrom: time}}))
                 get().fetchFilteredLogs()
+                const {filters, fileTimeRange} = get()
+                const from = time ?? fileTimeRange?.startTimestamp ?? 0
+                const to = filters.timeTo ?? fileTimeRange?.endTimestamp ?? 0
+                get().loadTimeline(20, from, to)
             },
 
             setTimeTo: (time: number | null) => {
                 set(state => ({filters: {...state.filters, timeTo: time}}))
                 get().fetchFilteredLogs()
+                const {filters, fileTimeRange} = get()
+                const from = filters.timeFrom ?? fileTimeRange?.startTimestamp ?? 0
+                const to = time ?? fileTimeRange?.endTimestamp ?? 0
+                get().loadTimeline(20, from, to)
             },
 
             clearSearch: () => {
