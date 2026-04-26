@@ -5,7 +5,7 @@ import styles from './Header.module.css'
 const VERSION = '0.1.0'
 
 export default function Header() {
-    const {metadata, uploadLog} = useLogStore()
+    const {metadata, uploadLog, clearLog} = useLogStore()
     const fileInputRef = useRef<HTMLInputElement>(null)
 
     const displayName = metadata?.deviceName || 'No file loaded'
@@ -49,6 +49,14 @@ export default function Header() {
                     </svg>
                     Load New File
                 </button>
+                {metadata && (
+                    <button className={styles.clearBtn} onClick={clearLog} title="Close file">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <line x1="18" y1="6" x2="6" y2="18"/>
+                            <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </button>
+                )}
                 <input
                     ref={fileInputRef}
                     type="file"

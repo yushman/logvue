@@ -73,6 +73,32 @@
     height: 16px;
 }
 
+.clearBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-button);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+    margin-left: 8px;
+}
+
+.clearBtn:hover {
+    border-color: var(--color-error, #e53e3e);
+    color: var(--color-error, #e53e3e);
+}
+
+.clearBtn svg {
+    width: 16px;
+    height: 16px;
+}
+
 .hiddenInput {
     display: none;
 }

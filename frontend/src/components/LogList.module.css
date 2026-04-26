@@ -83,14 +83,15 @@
 }
 
 .searchToggleBtnActive {
-    background: var(--color-primary);
-    border-color: var(--color-primary);
+    background: mediumpurple;
+    border-color: mediumpurple;
     color: white;
+    font-weight: 700;
 }
 
 .searchToggleBtnActive:hover {
-    background: var(--color-primary);
-    border-color: var(--color-primary);
+    background: mediumpurple;
+    border-color: mediumpurple;
     color: white;
 }
 
