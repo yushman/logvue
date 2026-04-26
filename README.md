@@ -1,4 +1,4 @@
-![LogVue Logo](frontend/public/favicon.svg)
+<img src="frontend/public/favicon.svg" width="120" alt="LogVue Logo">
 
 # LogVue
 
@@ -13,8 +13,8 @@ visualization.
 
 1. Download the appropriate binary:
    - **Apple Silicon (M1/M2/M3)**:
-     `curl -L -o logvue https://github.com/yushman/logvue/releases/download/v0.2.0/logvue-darwin-arm64`
-   - **Intel Mac**: `curl -L -o logvue https://github.com/yushman/logvue/releases/download/v0.2.0/logvue-darwin-amd64`
+     `curl -L -o logvue https://github.com/yushman/logvue/releases/download/v0.3.0/logvue-darwin-arm64`
+   - **Intel Mac**: `curl -L -o logvue https://github.com/yushman/logvue/releases/download/v0.3.0/logvue-darwin-amd64`
 
 2. Remove quarantine attribute (required by macOS):
    ```bash
@@ -29,8 +29,8 @@ visualization.
 #### Linux
 
 1. Download the appropriate binary:
-   - **x86_64**: `curl -L -o logvue https://github.com/yushman/logvue/releases/download/v0.2.0/logvue-linux-amd64`
-   - **ARM64**: `curl -L -o logvue https://github.com/yushman/logvue/releases/download/v0.2.0/logvue-linux-arm64`
+   - **x86_64**: `curl -L -o logvue https://github.com/yushman/logvue/releases/download/v0.3.0/logvue-linux-amd64`
+   - **ARM64**: `curl -L -o logvue https://github.com/yushman/logvue/releases/download/v0.3.0/logvue-linux-arm64`
 
 2. Make it executable:
    ```bash
