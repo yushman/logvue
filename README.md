@@ -1,13 +1,52 @@
-### Installation
-1. Download release binary
-   - mac x86 - `curl -L -o logvue https://github.com/yushman/logvue/releases/download/v0.2.0/logvue-darwin-amd64`
-   - mac arm - `curl -L -o logvue https://github.com/yushman/logvue/releases/download/v0.2.0/logvue-darwin-arm64`
-   - linux x86 - `curl -L -o logvue https://github.com/yushman/logvue/releases/download/v0.2.0/logvue-linux-amd64`
-3. Remove carantine on macOs - `/usr/bin/xattr -drs com.apple.quarantine logvue`
-4. Make executable - `chmod +x logvue`
+![LogVue Logo](frontend/public/favicon.svg)
 
-### Lanch  
-1. Launch on specific port - `./logvue start -p 8081`
-2. Use on - `http://localhost:8081`
-3. Status - `./logvue status`
-4. Stop - `Ctrl + C` , `./logvue stop`
+# LogVue
+
+A log viewer application for Android logcat JSON exports. Features virtual scrolling, filtering, and timeline
+visualization.
+
+![Screenshot](screenshot.png)
+
+### Installation
+
+#### macOS
+
+1. Download the appropriate binary:
+   - **Apple Silicon (M1/M2/M3)**:
+     `curl -L -o logvue https://github.com/yushman/logvue/releases/download/v0.2.0/logvue-darwin-arm64`
+   - **Intel Mac**: `curl -L -o logvue https://github.com/yushman/logvue/releases/download/v0.2.0/logvue-darwin-amd64`
+
+2. Remove quarantine attribute (required by macOS):
+   ```bash
+   /usr/bin/xattr -drs com.apple.quarantine logvue
+   ```
+
+3. Make it executable:
+   ```bash
+   chmod +x logvue
+   ```
+
+#### Linux
+
+1. Download the appropriate binary:
+   - **x86_64**: `curl -L -o logvue https://github.com/yushman/logvue/releases/download/v0.2.0/logvue-linux-amd64`
+   - **ARM64**: `curl -L -o logvue https://github.com/yushman/logvue/releases/download/v0.2.0/logvue-linux-arm64`
+
+2. Make it executable:
+   ```bash
+   chmod +x logvue
+   ```
+
+### Usage
+
+```bash
+./logvue start -p 8081    # Start server on port 8081 (default)
+./logvue status            # Check server status
+./logvue stop              # Stop server
+```
+
+Then open http://localhost:8081 in your browser.
+
+### License
+
+MIT

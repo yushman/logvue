@@ -12,13 +12,13 @@ import (
 
 const (
 	pidFile    = ".logvue.pid"
-	defaultPort = 8080
+	defaultPort = 8081
 	defaultHTTPSPort = 443
 )
 
 func main() {
 	if len(os.Args) < 2 {
-		printUsage()
+		handleStart()
 		return
 	}
 
@@ -42,7 +42,7 @@ func printUsage() {
 	fmt.Println("  status           Check if server is running")
 	fmt.Println("")
 	fmt.Println("Options:")
-	fmt.Println("  -p, --port <port>       HTTP port (default: 8080)")
+	fmt.Println("  -p, --port <port>       HTTP port (default: 8081)")
 	fmt.Println("  --tls                   Enable HTTPS with Let's Encrypt auto-cert")
 	fmt.Println("  --domain <domain>       Domain name for Let's Encrypt (required with --tls)")
 	fmt.Println("  --https-port <port>     HTTPS port (default: 443, requires root)")
@@ -55,7 +55,7 @@ func handleStart() {
 	httpsPort := defaultHTTPSPort
 
 	// Parse flags manually for cross-platform compatibility
-	args := os.Args[2:]
+	args := os.Args[1:]
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
 		case "-p", "--port":
