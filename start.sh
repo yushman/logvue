@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-cd "$(dirname "$0")/backend-go"
+cd "$(dirname "$0")/backend"
 
 # Build if needed
 if [ ! -f "./logvue" ]; then

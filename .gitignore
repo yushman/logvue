@@ -6,8 +6,8 @@ build/
 .claude/
 node_modules/
 /logs/
-/backend-go/.logvue.pid
-/backend-go/logvue
-/backend-go/assets/index.html
-/backend-go/assets/assets/
+/backend/.logvue.pid
+/backend/logvue
+/backend/assets/index.html
+/backend/assets/assets/
 /frontend/dist/

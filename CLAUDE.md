@@ -12,7 +12,7 @@ filters logs, and a React TypeScript frontend with virtual scrolling, filtering,
 ### Backend (Go)
 
 ```bash
-cd backend-go
+cd backend
 go build -o logvue .          # Build binary
 ./logvue start -p 8080        # Start server
 ./logvue stop                  # Stop server
@@ -27,7 +27,7 @@ go test ./parser -run TestName # Run single test
 cd frontend
 npm install                   # Install dependencies
 npm run dev                   # Start dev server (port 5173, proxies to 8080)
-npm run build                 # Production build (outputs to ../backend-go/files)
+npm run build                 # Production build (outputs to ../backend/files)
 npm run lint                  # ESLint
 ```
 
@@ -50,7 +50,7 @@ make status  # Check server status
 ### Backend Structure
 
 ```
-backend-go/
+backend/
   main.go                     # CLI entry point (start/stop/status), PID management
   server.go                   # HTTP server, gorilla/mux router, CORS, static files
   models/

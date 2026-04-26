@@ -1,7 +1,7 @@
 .PHONY: build run stop status
 
 APP_NAME=logvue
-GO_DIR=backend-go
+GO_DIR=backend
 PORT=8080
 
 build:

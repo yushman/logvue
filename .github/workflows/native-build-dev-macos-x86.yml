@@ -33,10 +33,10 @@ jobs:
           GOOS: darwin
           GOARCH: amd64
         run: |
-          cd backend-go && go build -o logvue .
+          cd backend && go build -o logvue .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: logvue-darwin-amd64-dev
-          path: backend-go/logvue
+          path: backend/logvue

@@ -5,7 +5,7 @@ export default defineConfig({
     plugins: [react()],
     base: '/',
     build: {
-        outDir: '../backend-go/assets',
+        outDir: '../backend/assets',
         emptyOutDir: false
     },
     server: {

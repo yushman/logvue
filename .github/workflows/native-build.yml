@@ -40,13 +40,13 @@ jobs:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
         run: |
-          cd backend-go && go build -o logvue .
+          cd backend && go build -o logvue .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: logvue-${{ matrix.goos }}-${{ matrix.goarch }}
-          path: backend-go/logvue
+          path: backend/logvue
 
   release:
     needs: build
