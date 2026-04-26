@@ -17,7 +17,6 @@ interface TimelineProps {
 const MARGIN = {top: 10, right: 20, bottom: 50, left: 10}
 const CHART_HEIGHT = 120
 const MAX_SEGMENTS = 5
-const NUM_BUCKETS = 30
 
 interface BucketSegment {
     tag: string
@@ -107,8 +106,8 @@ function formatTime(ts: number, showMillis: boolean = false): string {
 }
 
 function formatTooltip(bucket: TimelineBucket, segments: BucketSegment[], startTime: number, endTime: number): string {
-    const start = formatTime(startTime)
-    const end = formatTime(endTime)
+    const start = formatTime(startTime, true)
+    const end = formatTime(endTime, true)
     const tagLines = segments
         .map(s => `${s.tag}: ${s.count}`)
         .join(', ')
@@ -136,8 +135,8 @@ export default function Timeline({
 
     const bucketSizeMs = useMemo(() => {
         const total = timeRange.endTimestamp - timeRange.startTimestamp
-        return total / NUM_BUCKETS
-    }, [timeRange])
+        return total / buckets.length
+    }, [timeRange, buckets.length])
 
     const segments = useMemo(
         () => computeSegments(buckets, tagColors, chartHeight + MARGIN.top + MARGIN.bottom),
@@ -153,14 +152,14 @@ export default function Timeline({
     const handleBarClick = useCallback(
         (bucketIndex: number) => {
             if (buckets[bucketIndex]?.count === 0) return
-            const bucketStart = Math.floor(timeRange.startTimestamp + bucketIndex * bucketSizeMs)
+            const bucketStart = buckets[bucketIndex].timestamp
             const isLastBucket = bucketIndex === buckets.length - 1
             const bucketEnd = isLastBucket
                 ? timeRange.endTimestamp
-                : Math.floor(bucketStart + bucketSizeMs)
+                : buckets[bucketIndex + 1].timestamp
             onRangeSelect({from: bucketStart, to: bucketEnd})
         },
-        [timeRange, bucketSizeMs, onRangeSelect]
+        [buckets, timeRange, onRangeSelect]
     )
 
     // Selected range overlay rect
@@ -251,7 +250,7 @@ export default function Timeline({
                                             fill="#666"
                                             fontSize={9}
                                         >
-                                            {formatTime(bucketMidTime)}
+                                            {formatTime(bucketMidTime, true)}
                                         </text>
                                     )}
                                 </Group>

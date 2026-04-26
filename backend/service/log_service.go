@@ -363,11 +363,12 @@ func (s *LogService) GetTimeline(sessionID string, request models.TimelineReques
 	buckets := make([]models.TimelineBucket, 0, numBuckets)
 	for i := 0; i < numBuckets; i++ {
 		bucketStart := timeRange.StartTimestamp + int64(i)*bucketSize
-		bucketEnd := bucketStart + bucketSize
+		bucketEnd := timeRange.StartTimestamp + int64(i+1) * bucketSize
 		tags := make(map[string]int)
 
 		for _, e := range result.Entries {
-			if e.Timestamp >= bucketStart && e.Timestamp < bucketEnd {
+			ts := e.Timestamp
+			if ts >= bucketStart && ts < bucketEnd {
 				tags[e.Header.Tag]++
 			}
 		}
