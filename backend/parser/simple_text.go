@@ -44,7 +44,7 @@ func (p *SimpleTextLogParser) Parse(bytes []byte, fileName string) (*ParseResult
 		}
 
 		// Try Format A first: DD-MM HH:MM:SS L Tag Message
-		if matches := patternFormatA.FindStringSubmatch(line); len(matches) == 6 {
+		if matches := patternFormatA.FindStringSubmatch(line); len(matches) == 7 {
 			entry, err := p.parseFormatA(matches, currentYear)
 			if err == nil {
 				entries = append(entries, *entry)
@@ -53,7 +53,7 @@ func (p *SimpleTextLogParser) Parse(bytes []byte, fileName string) (*ParseResult
 		}
 
 		// Try Format B: MMM-DD HH:MM:SS Tag Level Message
-		if matches := patternFormatB.FindStringSubmatch(line); len(matches) == 6 {
+		if matches := patternFormatB.FindStringSubmatch(line); len(matches) == 7 {
 			entry, err := p.parseFormatB(matches, currentYear)
 			if err == nil {
 				entries = append(entries, *entry)
