@@ -40,13 +40,13 @@ jobs:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
         run: |
-          cd backend && go build -o logvue .
+          cd backend && go build -o logvue-${{ matrix.goos }}-${{ matrix.goarch }} .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: logvue-${{ matrix.goos }}-${{ matrix.goarch }}
-          path: backend/logvue
+          path: backend/logvue-${{ matrix.goos }}-${{ matrix.goarch }}
 
   release:
     needs: build
@@ -62,7 +62,7 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          files: /*.*
+          files: logvue-*
           draft: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
