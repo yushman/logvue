@@ -1,8 +1,7 @@
 import {useRef} from 'react'
 import {useLogStore} from '../stores/useLogStore'
 import styles from './Header.module.css'
-
-const VERSION = '0.1.0'
+import pkg from '../../package.json'
 
 export default function Header() {
     const {metadata, uploadLog, clearLog} = useLogStore()
@@ -33,7 +32,7 @@ export default function Header() {
                         </text>
                     </svg>
                     <span className={styles.appName}>LogVue</span>
-                    <span className={styles.version}>{VERSION}</span>
+                    <span className={styles.version}>{pkg.version}</span>
                 </div>
             </div>
 
