@@ -42,10 +42,23 @@ make status  # Check server status
 
 ### Dev Scripts
 
-- `devb.sh` - Build backend, kill port 8080, start LogVue on 8080
-- `devf.sh` - Build frontend only
+- `devb.sh` - Clean assets, build frontend to backend/assets, start LogVue on 8080
+- `devf.sh` - Build backend binary, then start LogVue on 8080 (use `devf.sh run` to skip build, `devf.sh build` to skip
+  start)
 
 ## Architecture
+
+## Abstract Syntax Tree
+
+**To access projects AST - use `ast-index` skill**
+Available commands:
+
+- ast-index search <query> — universal search
+- ast-index class <name> — find class/interface definitions
+- ast-index usages <symbol> — find symbol references
+- ast-index map — project structure overview
+- ast-index outline <file> — file structure
+- ast-index callers <func> — who calls a function
 
 ### Backend Structure
 
