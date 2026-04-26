@@ -78,6 +78,36 @@
     flex: 1;
 }
 
+.timeBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    background: var(--color-bg-input);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-button);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+.timeBtn:hover:not(:disabled) {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.timeBtn:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+
+.timeBtn svg {
+    width: 14px;
+    height: 14px;
+}
+
 .resetBtn {
     display: flex;
     align-items: center;
@@ -105,12 +135,14 @@
 
 .timeInput {
     width: 100%;
+    min-width: 180px;
     padding: 6px 8px;
     font-size: var(--font-size-xs);
     background: var(--color-bg-input);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-button);
     color: var(--color-text-primary);
+    font-family: monospace;
 }
 
 .timeInput:focus {

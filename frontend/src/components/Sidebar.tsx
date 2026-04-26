@@ -23,6 +23,8 @@ export default function Sidebar() {
     } = useLogStore()
 
     const [tagFilter, setTagFilter] = useState('')
+    const [timeFromDraft, setTimeFromDraft] = useState('')
+    const [timeToDraft, setTimeToDraft] = useState('')
 
     const isTimeModified = fileTimeRange && (
         filters.timeFrom !== fileTimeRange.startTimestamp ||
@@ -77,28 +79,88 @@ export default function Sidebar() {
     const hiddenTagsList = sortedTags.filter(t => isTagHidden(t.tag))
 
     const handleTimeFromChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value
-        if (value) {
-            setTimeFrom(new Date(value).getTime())
-        } else {
-            setTimeFrom(null)
-        }
+        setTimeFromDraft(e.target.value)
     }
 
     const handleTimeToChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value
-        if (value) {
-            setTimeTo(new Date(value).getTime())
-        } else {
-            setTimeTo(null)
+        setTimeToDraft(e.target.value)
+    }
+
+    const commitTimeFrom = () => {
+        const parsed = Date.parse(timeFromDraft)
+        if (!isNaN(parsed)) {
+            let value = parsed
+            if (fileTimeRange && value < fileTimeRange.startTimestamp) {
+                value = fileTimeRange.startTimestamp
+            }
+            setTimeFrom(value)
+        }
+        setTimeFromDraft('')
+    }
+
+    const commitTimeTo = () => {
+        const parsed = Date.parse(timeToDraft)
+        if (!isNaN(parsed)) {
+            let value = parsed
+            if (fileTimeRange && value > fileTimeRange.endTimestamp) {
+                value = fileTimeRange.endTimestamp
+            }
+            setTimeTo(value)
+        }
+        setTimeToDraft('')
+    }
+
+    const handleTimeKeyDown = (e: React.KeyboardEvent, commitFn: () => void, revertFn: () => void) => {
+        if (e.key === 'Enter') {
+            e.preventDefault()
+            commitFn()
+        } else if (e.key === 'Escape') {
+            e.preventDefault()
+            revertFn()
+        }
+    }
+
+    const getTimeInputValue = (draft: string, storeTs: number | null): string => {
+        if (draft !== '') return draft
+        if (storeTs === null) return ''
+        return formatTimestamp(storeTs)
+    }
+
+    const getRevertTimeFrom = () => {
+        setTimeFromDraft('')
+    }
+
+    const getRevertTimeTo = () => {
+        setTimeToDraft('')
+    }
+
+    const getTimeBtnProps = (draft: string, storeTs: number | null, defaultTs: number | null) => {
+        if (draft !== '') {
+            return {icon: 'done', disabled: false}
+        }
+        if (storeTs !== null && defaultTs !== null && storeTs !== defaultTs) {
+            return {icon: 'reset', disabled: false}
+        }
+        return {icon: 'done', disabled: true}
+    }
+
+    const resetTimeFrom = () => {
+        if (fileTimeRange) {
+            setTimeFrom(fileTimeRange.startTimestamp)
+        }
+    }
+
+    const resetTimeTo = () => {
+        if (fileTimeRange) {
+            setTimeTo(fileTimeRange.endTimestamp)
         }
     }
 
     const formatTimestamp = (ts: number | null): string => {
         if (!ts) return ''
         const date = new Date(ts)
-        const pad = (n: number) => n.toString().padStart(2, '0')
-        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`
+        const pad = (n: number, len = 2) => n.toString().padStart(len, '0')
+        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}.${pad(date.getMilliseconds(), 3)}`
     }
 
     return (
@@ -121,28 +183,68 @@ export default function Sidebar() {
                     <div className={styles.timeFilters}>
                         <div className={styles.timeRow}>
                             <input
-                                type="datetime-local"
+                                type="text"
                                 className={styles.timeInput}
-                                value={formatTimestamp(filters.timeFrom)}
+                                value={getTimeInputValue(timeFromDraft, filters.timeFrom)}
                                 onChange={handleTimeFromChange}
-                                placeholder="From"
+                                onKeyDown={e => handleTimeKeyDown(e, commitTimeFrom, getRevertTimeFrom)}
+                                placeholder="YYYY-MM-DD HH:MM:SS.mmm"
                             />
-                            {isTimeModified && (
-                                <button className={styles.resetBtn} onClick={resetTimeRange} title="Reset time range">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                                              d="M4 4v5h.582m0 0a8.001 8.001 0 0115.356 2M4.582 21H5m0 0v-5m0 5a8.001 8.001 0 01-2.743-5.425M19.424 14.575A8.001 8.001 0 0119.42 19m0 0a8.001 8.001 0 01-15.356-2m15.356 2H19"/>
-                                    </svg>
-                                </button>
-                            )}
+                            {(() => {
+                                const fromProps = getTimeBtnProps(timeFromDraft, filters.timeFrom, fileTimeRange?.startTimestamp ?? null)
+                                return (
+                                    <button
+                                        className={styles.timeBtn}
+                                        onClick={fromProps.icon === 'reset' ? resetTimeFrom : commitTimeFrom}
+                                        disabled={fromProps.disabled}
+                                        title={fromProps.icon === 'reset' ? 'Reset to default' : 'Apply'}
+                                    >
+                                        {fromProps.icon === 'done' ? (
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <polyline points="20 6 9 17 4 12"/>
+                                            </svg>
+                                        ) : (
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                                                      d="M4 4v5h.582m0 0a8.001 8.001 0 0115.356 2M4.582 21H5m0 0v-5m0 5a8.001 8.001 0 01-2.743-5.425M19.424 14.575A8.001 8.001 0 0119.42 19m0 0a8.001 8.001 0 01-15.356-2m15.356 2H19"/>
+                                            </svg>
+                                        )}
+                                    </button>
+                                )
+                            })()}
                         </div>
-                        <input
-                            type="datetime-local"
-                            className={styles.timeInput}
-                            value={formatTimestamp(filters.timeTo)}
-                            onChange={handleTimeToChange}
-                            placeholder="To"
-                        />
+                        <div className={styles.timeRow}>
+                            <input
+                                type="text"
+                                className={styles.timeInput}
+                                value={getTimeInputValue(timeToDraft, filters.timeTo)}
+                                onChange={handleTimeToChange}
+                                onKeyDown={e => handleTimeKeyDown(e, commitTimeTo, getRevertTimeTo)}
+                                placeholder="YYYY-MM-DD HH:MM:SS.mmm"
+                            />
+                            {(() => {
+                                const toProps = getTimeBtnProps(timeToDraft, filters.timeTo, fileTimeRange?.endTimestamp ?? null)
+                                return (
+                                    <button
+                                        className={styles.timeBtn}
+                                        onClick={toProps.icon === 'reset' ? resetTimeTo : commitTimeTo}
+                                        disabled={toProps.disabled}
+                                        title={toProps.icon === 'reset' ? 'Reset to default' : 'Apply'}
+                                    >
+                                        {toProps.icon === 'done' ? (
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <polyline points="20 6 9 17 4 12"/>
+                                            </svg>
+                                        ) : (
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                                                      d="M4 4v5h.582m0 0a8.001 8.001 0 0115.356 2M4.582 21H5m0 0v-5m0 5a8.001 8.001 0 01-2.743-5.425M19.424 14.575A8.001 8.001 0 0119.42 19m0 0a8.001 8.001 0 01-15.356-2m15.356 2H19"/>
+                                            </svg>
+                                        )}
+                                    </button>
+                                )
+                            })()}
+                        </div>
                     </div>
                 </div>
             </div>
