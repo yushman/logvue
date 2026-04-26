@@ -1,4 +1,7 @@
-.PHONY: build run stop status
+lint:
+	cd $(GO_DIR) && go vet ./...
+
+.PHONY: build run stop status lint
 
 APP_NAME=logvue
 GO_DIR=backend
