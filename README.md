@@ -40,10 +40,18 @@ visualization.
 ### Usage
 
 ```bash
-./logvue start -p 8081    # Start server on port 8081 (default)
-./logvue status            # Check server status
-./logvue stop              # Stop server
+./logvue start -p 8081              # Start server on port 8081 (default)
+./logvue start --tls --domain <domain>  # Start with HTTPS (Let's Encrypt)
+./logvue status                     # Check server status
+./logvue stop                       # Stop server
 ```
+
+**Options for `start`:**
+
+- `-p, --port <port>`      HTTP port (default: 8081)
+- `--tls`                  Enable HTTPS with Let's Encrypt auto-cert
+- `--domain <domain>`       Domain name for Let's Encrypt (required with --tls)
+- `--https-port <port>`    HTTPS port (default: 443, requires root)
 
 Then open http://localhost:8081 in your browser.
 
