@@ -2,7 +2,8 @@
 
 # LogVue
 
-A log viewer application for Android logcat JSON exports. Features virtual scrolling, filtering, and timeline
+A log viewer application for A log viewer application for most known log formats.. Features virtual scrolling,
+filtering, and timeline
 visualization.
 
 ![Screenshot](screenshot.png)
